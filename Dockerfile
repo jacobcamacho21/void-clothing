@@ -10,9 +10,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . .
 
-# Install PHP dependencies without version conflicts
+# Install dependencies ignoring local version locks
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
+# Expose container port
 EXPOSE 8000
 
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
+# Entrypoint script: cache config dynamically at boot and start app
+CMD php artisan config:clear && \
+    php artisan config:cache && \
+    php artisan migrate --force && \
+    php artisan serve --host=0.0.0.0 --port=8000
