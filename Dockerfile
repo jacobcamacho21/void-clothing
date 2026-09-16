@@ -10,14 +10,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . .
 
-# Install dependencies ignoring local version locks
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+# Install dependencies without running artisan scripts during build
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
 
-# Expose container port
+# Create start script
+RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
+    echo 'php artisan config:clear' >> /app/entrypoint.sh && \
+    echo 'php artisan config:cache' >> /app/entrypoint.sh && \
+    echo 'php artisan migrate --force' >> /app/entrypoint.sh && \
+    echo 'exec php artisan serve --host=0.0.0.0 --port=8000' >> /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh
+
 EXPOSE 8000
 
-# Entrypoint script: cache config dynamically at boot and start app
-CMD php artisan config:clear && \
-    php artisan config:cache && \
-    php artisan migrate --force && \
-    php artisan serve --host=0.0.0.0 --port=8000
+CMD ["/app/entrypoint.sh"]
