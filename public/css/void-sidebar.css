@@ -1,0 +1,357 @@
+/*
+ * VOID — the staff navigation rail.
+ *
+ * ONE sidebar for the whole staff-side system: the register, the dashboard,
+ * the stock room, the order desk, customers and accounts. Taken from the
+ * client-approved "Rail" register design, which is the source of truth for
+ * the system's look, and lifted out of pos.css so the back office renders
+ * exactly the same component rather than its own legacy variant.
+ *
+ * Loaded by layouts/pos.blade.php and layouts/admin.blade.php, after
+ * void-tokens.css (which supplies every colour, radius and timing below).
+ *
+ * ---------------------------------------------------------------------
+ * The rail must not move between pages.
+ * ---------------------------------------------------------------------
+ * Everything that decides the rail's geometry is declared in this file and
+ * nowhere else, so the register and the back office cannot drift apart:
+ *
+ *   1. It pins itself (position/height), rather than each layout pinning it
+ *      its own way.
+ *   2. It resets the properties the storefront stylesheet puts on bare
+ *      elements. The back office also loads index_design.css, whose `a` rule
+ *      added 15px of vertical margin to every nav link — 75px of extra rail
+ *      on admin pages that the register never had. That alone made the rail
+ *      overflow, grow an inner scrollbar and hand its links 15px less width
+ *      than the same rail at the register.
+ *   3. Only the middle scrolls, and its scrollbar is hidden, so the brand,
+ *      the links and the footer sit on the same pixels at every height.
+ */
+
+.pos-sidebar {
+    width: 230px;
+    flex: 0 0 230px;
+    background: var(--void-ink);
+    display: flex;
+    flex-direction: column;
+    /* The rail is a <nav>, and the storefront stylesheet gives every <nav>
+       `display:flex; gap:20px` for the shop header. On admin pages that put
+       20px between the brand, the links and the footer that the register
+       never had. Stated here so the two agree. */
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    /* Pinned here for both layouts. Sticky rather than fixed so the rail
+       still participates in the flex row and needs no matching offset. */
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    /* The rail itself never scrolls — .nav-scroll does. */
+    overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------
+   Defensive reset.
+   The back office loads the storefront stylesheet, which styles bare `a`
+   and `button`. None of that is meant for the rail.
+   --------------------------------------------------------------------- */
+
+.pos-sidebar a,
+.pos-sidebar button,
+.pos-sidebar p {
+    margin: 0;
+    text-align: left;
+}
+
+/* The storefront lifts every button by 2px on hover. That reads as a
+   glitch on a fixed navigation rail, so the rail opts out. */
+.pos-sidebar button:hover,
+.pos-sidebar button:active,
+.pos-sidebar a:hover,
+.pos-sidebar a:active {
+    transform: none;
+}
+
+/* ---------- brand ---------- */
+
+/* Selected as `.pos-sidebar .pos-brand` and not `.pos-brand`: the defensive
+   reset above is `.pos-sidebar a`, which out-specifies a lone class and was
+   winning. The logo has `margin: 0 auto` and so stayed centred, but RETAIL
+   SYSTEM under it was being set flush to the rail's left edge. */
+.pos-sidebar .pos-brand {
+    flex: 0 0 auto;
+    padding: 20px 0 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--void-ink-line);
+    text-decoration: none;
+    display: block;
+    transition: background var(--void-speed-fast);
+}
+
+.pos-brand:hover {
+    background: rgba(255, 255, 255, .04);
+}
+
+.pos-brand .pos-logo {
+    width: 92px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.pos-sidebar .pos-brand .sub {
+    display: block;
+    font-size: var(--void-text-micro);
+    letter-spacing: 3px;
+    /* Tracking is added to the right of the last letter, which pushes a
+       centred line half a space off its own centre. This puts it back —
+       the same correction the staff sign-in's mark makes. */
+    text-indent: 3px;
+    text-align: center;
+    color: var(--void-ink-faint);
+    margin-top: 8px;
+}
+
+/* ---------- the one scrolling region ----------
+   Its scrollbar is hidden rather than thinned: a scrollbar that appears at
+   one window height and not another would change the links' width, which is
+   exactly the shifting the rail is meant to be free of. */
+
+.nav-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overscroll-behavior: contain;
+}
+
+.nav-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* ---------- grouped navigation ---------- */
+
+.nav-group {
+    padding: 16px 0 6px;
+}
+
+.nav-group + .nav-group {
+    border-top: 1px solid var(--void-ink-line);
+}
+
+.nav-label {
+    font-size: var(--void-text-micro);
+    letter-spacing: 1.6px;
+    color: var(--void-ink-label);
+    padding: 0 18px 8px;
+    text-transform: uppercase;
+}
+
+.pos-sidebar a.nav-link,
+.pos-sidebar button.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: #e7e7e7;
+    padding: 12px 18px;
+    text-decoration: none;
+    /* On the type scale rather than half a pixel off it — 13.5px is the one
+       size in the rail that never rendered on a whole pixel. */
+    font-size: var(--void-text-md);
+    font-family: inherit;
+    border-left: 3px solid transparent;
+    transition: background var(--void-speed-fast) var(--void-ease),
+                color var(--void-speed-fast) var(--void-ease),
+                border-color var(--void-speed-fast) var(--void-ease);
+    width: 100%;
+    background: none;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pos-sidebar a.nav-link:hover,
+.pos-sidebar button.nav-link:hover {
+    background: var(--void-ink-soft);
+    color: #fff;
+    border-left-color: var(--void-ink-border);
+}
+
+.pos-sidebar a.nav-link.active,
+.pos-sidebar button.nav-link.active {
+    background: var(--void-ink-soft);
+    color: #fff;
+    border-left-color: #fff;
+    font-weight: 700;
+}
+
+/* A link gives under the cursor by a hair rather than moving: on a rail that
+   never scrolls and never re-renders, a 1px shift is all the acknowledgement
+   a click needs. */
+.pos-sidebar a.nav-link:active,
+.pos-sidebar button.nav-link:active {
+    background: #333;
+}
+
+.pos-sidebar .nav-link svg {
+    flex: 0 0 17px;
+    opacity: .8;
+    transition: opacity var(--void-speed-fast) var(--void-ease);
+}
+
+.pos-sidebar .nav-link:hover svg,
+.pos-sidebar .nav-link.active svg {
+    opacity: 1;
+}
+
+/* ---------- count badges ---------- */
+
+.pos-sidebar .badge {
+    margin-left: auto;
+    background: #fff;
+    color: var(--void-ink);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: var(--void-radius-pill);
+    padding: 2px 7px;
+    min-width: 20px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    transition: background var(--void-speed-fast) var(--void-ease),
+                color var(--void-speed-fast) var(--void-ease),
+                border-color var(--void-speed-fast) var(--void-ease);
+}
+
+.pos-sidebar .badge.hollow {
+    background: transparent;
+    color: var(--void-ink-faint);
+    border: 1px solid var(--void-ink-border);
+}
+
+.pos-sidebar .nav-link:hover .badge.hollow {
+    color: #fff;
+    border-color: #6a6a6a;
+}
+
+.pos-sidebar .badge[hidden] {
+    display: none;
+}
+
+/* ---------- signed-in footer ---------- */
+
+.side-foot {
+    flex: 0 0 auto;
+    margin-top: auto;
+    padding: 16px 18px 18px;
+    border-top: 1px solid var(--void-ink-line);
+}
+
+.side-foot .who {
+    font-size: 11px;
+    color: var(--void-ink-faint);
+    line-height: 1.6;
+    margin-bottom: 11px;
+}
+
+.side-foot .who b {
+    display: block;
+    color: #fff;
+    font-size: 13px;
+}
+
+.logout {
+    width: 100%;
+    padding: 11px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #fff;
+    border-radius: var(--void-radius-sm);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    cursor: pointer;
+    transition: background var(--void-speed-fast) var(--void-ease),
+                color var(--void-speed-fast) var(--void-ease);
+}
+
+.logout:hover {
+    background: transparent;
+    color: #fff;
+}
+
+/* ---------------------------------------------------------------------
+   Narrow screens: the rail lies down into a horizontal bar. The active
+   marker moves from the left edge to the bottom edge so it still reads.
+   --------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+    .pos-sidebar {
+        width: 100%;
+        flex: 0 0 auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        position: static;
+        height: auto;
+        overflow: visible;
+    }
+
+    .nav-scroll {
+        flex: 1 1 auto;
+        display: flex;
+        flex-wrap: wrap;
+        overflow: visible;
+        min-height: 0;
+    }
+
+    .pos-sidebar .nav-group {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 4px;
+        flex: 1;
+        border-top: none;
+    }
+
+    .pos-sidebar .nav-label { display: none; }
+
+    .pos-sidebar a.nav-link,
+    .pos-sidebar button.nav-link {
+        width: auto;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+
+    .pos-sidebar a.nav-link:hover,
+    .pos-sidebar button.nav-link:hover,
+    .pos-sidebar a.nav-link.active,
+    .pos-sidebar button.nav-link.active {
+        border-left-color: transparent;
+    }
+
+    .pos-sidebar a.nav-link.active,
+    .pos-sidebar button.nav-link.active {
+        border-bottom-color: #fff;
+    }
+
+    .side-foot {
+        margin-top: 0;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .side-foot .who { margin-bottom: 0; }
+
+    .side-foot .logout {
+        width: auto;
+        padding: 9px 18px;
+        margin-left: auto;
+    }
+}

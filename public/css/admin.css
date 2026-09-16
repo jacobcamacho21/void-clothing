@@ -1,0 +1,1041 @@
+/*
+ * Back-office styling.
+ *
+ * The back office keeps the look the client signed off on. What this file
+ * does is make that look consistent: every value here comes from
+ * void-tokens.css, so a card on the dashboard, a panel in the stock room and
+ * a row in the order desk are the same card, panel and row.
+ *
+ * It is loaded last, after index_design.css (the storefront sheet, which the
+ * back office shares for its tables and legacy chrome) and void-sidebar.css,
+ * so it has the final word on anything the two disagree about.
+ */
+
+/* =====================================================================
+   1. The shell
+   ---------------------------------------------------------------------
+   The back office is an application, not a document: the rail stays put
+   and the pane beside it scrolls. This is the register's own arrangement
+   (.shell / .pos-main in pos.css), repeated here so the two sides of the
+   staff system behave identically when you move between them.
+
+   It also removes the last thing that made the rail jump: on a long page
+   the document grew a scrollbar and on a short one it did not, so the
+   window's usable width changed from page to page. Only .main-content
+   scrolls now, and its scrollbar sits inside the pane.
+   ===================================================================== */
+
+.admin-page {
+  font-family: var(--void-font);
+  display: flex;
+  align-items: stretch;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  background: var(--void-page);
+  /* index_design.css still holds the pre-rail geometry for this element —
+     a 250px left margin and a matching width, from when the sidebar was a
+     fixed column. The rail is a flex sibling now, so both are cleared. */
+  margin: 0;
+  width: auto;
+  min-height: 0;
+}
+
+/* ---------------------------------------------------------------------
+   The storefront sheet styles bare <a> for the shop: centred, with 15px
+   of vertical margin. On an inline link that margin does nothing, but on
+   the inline-block links of the pager and the range switch it opens gaps
+   the design never asked for. The back office opts out; components that
+   want space ask for it themselves.
+   --------------------------------------------------------------------- */
+.main-content a {
+  margin: 0;
+}
+
+/* ---------- page header ---------- */
+
+.header-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--void-pad);
+  background: var(--void-surface);
+  min-height: var(--void-header-h);
+  padding: 12px var(--void-gutter);
+  border-bottom: 1px solid var(--void-line);
+  margin-bottom: 0;
+  box-shadow: none;
+  z-index: 5;
+}
+
+.page-title {
+  font-size: var(--void-text-xl);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--void-ink);
+  margin: 0;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ---------- the scrolling pane ---------- */
+
+.content-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--void-gutter);
+  /* The pane, not the rail, is what changes when you navigate — so the
+     pane is the only thing that animates.
+
+     Deliberately without a fill mode: the keyframes start from opacity 0,
+     and with `both` the pane would stay invisible on any client that never
+     runs the animation. Unfilled, the content is visible by default and the
+     entrance is the enhancement it should be. */
+  animation: voidRise var(--void-speed) var(--void-ease);
+}
+
+/* ---------- leaving ----------
+   transition.js marks the body while the next page loads. On the storefront
+   the whole body fades; here only the pane does, because the rail beside it
+   is not changing and must not appear to. */
+.admin-page.page-is-leaving .content-body {
+  animation: voidSink var(--void-speed-fast) var(--void-ease) forwards;
+}
+
+.admin-page.page-is-leaving { pointer-events: none; }
+
+/* ---------- arriving, in order ----------
+   The pane fades in as one thing; the cards inside it then land in reading
+   order, left to right. Four steps of 45ms is under a fifth of a second in
+   total — enough to read as sequence rather than as a queue.
+
+   `backwards` and not `both`: the delay must hold the card back, but once
+   the run is over the card returns to its own styles, so a client that
+   never runs the animation still shows a full dashboard. */
+.content-body .summary-card,
+.content-body .dash-split > .panel {
+  animation: voidRise var(--void-speed) var(--void-ease) backwards;
+}
+
+.content-body .summary-card:nth-child(2),
+.content-body .dash-split > .panel:nth-child(2) { animation-delay: 45ms; }
+.content-body .summary-card:nth-child(3) { animation-delay: 90ms; }
+.content-body .summary-card:nth-child(4) { animation-delay: 135ms; }
+
+/* The pane's scrollbar, matched to the register's. */
+.content-body::-webkit-scrollbar { width: 8px; }
+.content-body::-webkit-scrollbar-thumb { background: #c9c9c9; border-radius: var(--void-radius); }
+.content-body::-webkit-scrollbar-thumb:hover { background: #b0b0b0; }
+
+/* ---------------------------------------------------------------------
+   Below the rail's breakpoint the bar sits above the content and the
+   document scrolls normally again.
+   --------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .admin-page {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .main-content { overflow: visible; }
+
+  .content-body {
+    overflow: visible;
+    padding: var(--void-pad);
+  }
+
+  .header-bar { padding: 14px var(--void-pad); }
+}
+
+/* =====================================================================
+   2. Status messages
+   ===================================================================== */
+
+.status-success,
+.status-error {
+  margin: 0 0 var(--void-gap);
+  padding: 11px 14px;
+  border-radius: var(--void-radius-sm);
+  font-size: var(--void-text-base);
+  line-height: 1.5;
+}
+
+.status-success {
+  background: var(--void-ok-bg);
+  border: 1px solid var(--void-ok-line);
+  color: var(--void-ok);
+}
+
+.status-error {
+  background: var(--void-bad-bg);
+  border: 1px solid var(--void-bad-line);
+  color: var(--void-bad);
+}
+
+/* =====================================================================
+   2b. Page intro
+   ---------------------------------------------------------------------
+   The greeting a page opens with. It is the second-loudest thing on the
+   screen after the page title in the header bar, so it is set one step
+   below it rather than larger, which is what it used to be.
+   ===================================================================== */
+
+.page-intro { margin-bottom: var(--void-pad); }
+
+.page-intro h2 {
+  margin: 0 0 4px;
+  font-size: var(--void-text-lg);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--void-text);
+}
+
+.page-intro p {
+  margin: 0;
+  font-size: var(--void-text-base);
+  line-height: 1.5;
+  color: var(--void-text-muted);
+}
+
+/* A record's thumbnail in a table row. */
+.thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: var(--void-radius-xs);
+  border: 1px solid var(--void-line-soft);
+  display: block;
+  background: var(--void-surface-sunk);
+  transition: transform var(--void-speed-fast) var(--void-ease),
+              border-color var(--void-speed-fast) var(--void-ease);
+}
+
+/* The row already lights up; the picture in it comes forward with it. */
+tr:hover > td > .thumb,
+tr:hover > td .thumb {
+  transform: scale(1.08);
+  border-color: var(--void-line-strong);
+}
+
+/* A labelled block of read-only detail, e.g. a shipping address. */
+.field-label {
+  margin: var(--void-pad) 0 4px;
+  font-size: var(--void-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--void-track-label);
+  text-transform: uppercase;
+  color: var(--void-text-faint);
+}
+
+.field-value {
+  margin: 0;
+  font-size: var(--void-text-base);
+  line-height: 1.6;
+  color: var(--void-text);
+}
+
+/* =====================================================================
+   3. Summary cards
+   ---------------------------------------------------------------------
+   A label, a figure and a note. The figure is the only large thing on the
+   card, which is what makes a row of them scan.
+   ===================================================================== */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--void-gap);
+  margin-bottom: var(--void-gap);
+}
+
+.summary-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.summary-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--void-surface);
+  border: 1px solid var(--void-line);
+  border-radius: var(--void-radius);
+  padding: var(--void-pad);
+  box-shadow: var(--void-shadow-panel);
+  transition: border-color var(--void-speed-fast) var(--void-ease),
+              box-shadow var(--void-speed-fast) var(--void-ease),
+              transform var(--void-speed-fast) var(--void-ease);
+}
+
+/* The storefront's product card lifts 5px under the cursor. A dashboard card
+   is furniture rather than merchandise, so it lifts 2 — the same gesture,
+   said at the volume the back office should be said at. */
+.summary-card:hover {
+  border-color: var(--void-line-strong);
+  box-shadow: var(--void-shadow-raised);
+  transform: translateY(-2px);
+}
+
+.summary-card.is-accent:hover { border-color: var(--void-ink); }
+
+.summary-label {
+  margin: 0 0 10px;
+  font-size: var(--void-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--void-track-label);
+  text-transform: uppercase;
+  color: var(--void-text-faint);
+}
+
+.summary-value {
+  margin: 0;
+  font-size: var(--void-text-metric);
+  font-weight: 700;
+  color: var(--void-text);
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The note sits on the card's floor, so notes line up across a row even
+   when one of them runs to two lines. */
+.summary-note {
+  margin: 8px 0 0;
+  padding-top: 0;
+  font-size: var(--void-text-xs);
+  line-height: 1.5;
+  color: var(--void-text-muted);
+}
+
+.summary-card .summary-note:last-child { margin-top: auto; padding-top: 8px; }
+
+/* The lead metric is inverted so the eye lands on it first — VOID's own
+   black, not an accent colour the system does not otherwise own. */
+.summary-card.is-accent {
+  background: var(--void-ink);
+  border-color: var(--void-ink);
+}
+.summary-card.is-accent .summary-label { color: #9a9a9a; }
+.summary-card.is-accent .summary-value { color: #fff; }
+.summary-card.is-accent .summary-note { color: #b0b0b0; }
+.summary-card.is-accent .summary-note a,
+.summary-card.is-accent .row-link { color: #fff; }
+
+/* ---------- the figure line ----------
+   A figure and its unit set as one line: the number in the metric size,
+   the unit stepped down and quiet, sharing one baseline. Used wherever a
+   count needs qualifying — "12 of 40", "6 units or fewer". */
+
+.metric-line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.metric-unit {
+  font-size: var(--void-text-sm);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--void-text-faint);
+  font-variant-numeric: normal;
+}
+
+.summary-card.is-accent .metric-unit { color: #9a9a9a; }
+
+/* =====================================================================
+   4. Panels
+   ===================================================================== */
+
+.panel {
+  background: var(--void-surface);
+  border: 1px solid var(--void-line);
+  border-radius: var(--void-radius);
+  box-shadow: var(--void-shadow-panel);
+  overflow: hidden;
+  margin-bottom: var(--void-gap);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px var(--void-pad);
+  border-bottom: 1px solid var(--void-line-soft);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: var(--void-text-lg);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--void-text);
+}
+
+.panel-subtitle {
+  margin: 3px 0 0;
+  font-size: var(--void-text-xs);
+  color: var(--void-text-faint);
+}
+
+.panel-body { padding: var(--void-pad); }
+.panel-body.flush { padding: 0 var(--void-pad) var(--void-pad); }
+
+/* Dashboard: chart beside a highlights column. */
+.dash-split {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--void-gap);
+  align-items: start;
+  margin-bottom: var(--void-gap);
+}
+.dash-split > .panel { margin-bottom: 0; }
+
+@media (max-width: 1100px) {
+  .dash-split { grid-template-columns: 1fr; }
+}
+
+/* The legacy card the list pages are built on, brought onto the panel's
+   own border, radius and shadow so the two are the same object. */
+.content-card {
+  background: var(--void-surface);
+  border: 1px solid var(--void-line);
+  border-radius: var(--void-radius);
+  box-shadow: var(--void-shadow-panel);
+  padding: var(--void-pad);
+}
+
+/* A panel and a content card are the same object, so they arrive the same
+   way: after the pane, and only once. */
+.content-body > .panel,
+.content-body > .content-card {
+  animation: voidRise var(--void-speed) var(--void-ease) 45ms backwards;
+}
+
+/* =====================================================================
+   5. Ranked list ("Most Popular Items")
+   ===================================================================== */
+
+.rank-list { list-style: none; margin: 0; padding: 4px 0; }
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px var(--void-pad);
+  border-bottom: 1px solid var(--void-line-soft);
+  transition: background var(--void-speed-fast) var(--void-ease);
+}
+.rank-item:last-child { border-bottom: none; }
+
+/* The same hover a table row gets, so a list and a table behave alike. */
+.rank-item:hover { background: var(--void-surface-sunk); }
+
+.rank-badge {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--void-surface-sunk);
+  border: 1px solid var(--void-line);
+  border-radius: var(--void-radius-pill);
+  font-size: var(--void-text-xs);
+  font-weight: 700;
+  color: var(--void-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.rank-item:first-child .rank-badge {
+  background: var(--void-ink);
+  border-color: var(--void-ink);
+  color: #fff;
+}
+
+.rank-main { flex: 1; min-width: 0; }
+.rank-name {
+  font-size: var(--void-text-base);
+  font-weight: 600;
+  color: var(--void-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rank-sub { font-size: var(--void-text-xs); color: var(--void-text-faint); margin-top: 2px; }
+.rank-value {
+  flex: 0 0 auto;
+  font-size: var(--void-text-base);
+  font-weight: 700;
+  color: var(--void-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* =====================================================================
+   6. Chips, tags and the range switch
+   ===================================================================== */
+
+.pill-tag,
+.range-link {
+  display: inline-block;
+  background: var(--void-surface-sunk);
+  border: 1px solid var(--void-line);
+  border-radius: var(--void-radius-pill);
+  padding: 6px 12px;
+  font-size: var(--void-text-sm);
+  font-weight: 600;
+  color: var(--void-text-muted);
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+.range-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.range-link {
+  transition: background var(--void-speed-fast) var(--void-ease),
+              color var(--void-speed-fast) var(--void-ease),
+              border-color var(--void-speed-fast) var(--void-ease);
+}
+
+.range-link:hover { background: var(--void-surface); border-color: var(--void-text-faint); color: var(--void-text); }
+.range-link.active { background: var(--void-ink); color: #fff; border-color: var(--void-ink); }
+
+/* =====================================================================
+   7. Chart
+   ===================================================================== */
+
+.chart-wrap { padding: var(--void-pad); }
+
+.chart {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--void-surface);
+  border: 1px solid var(--void-line-soft);
+  border-radius: var(--void-radius-sm);
+}
+
+.chart-axis-label { font-size: 11px; fill: var(--void-text-faint); font-family: var(--void-font); }
+.chart-axis-title {
+  font-size: 10px;
+  fill: var(--void-text-faint);
+  font-weight: 700;
+  letter-spacing: .08em;
+  font-family: var(--void-font);
+  text-transform: uppercase;
+}
+
+/* =====================================================================
+   8. Toolbar and controls
+   ===================================================================== */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: var(--void-pad);
+  flex-wrap: wrap;
+}
+
+.toolbar h2 {
+  margin: 0;
+  font-size: var(--void-text-lg);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--void-text);
+}
+
+.toolbar-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* One field treatment for the whole back office: same height, same border,
+   same focus ring as the register's search box. */
+.search-field { position: relative; }
+
+.search-field input,
+.filter-select,
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+  border: 1px solid var(--void-line-strong);
+  border-radius: var(--void-radius-sm);
+  background: var(--void-surface);
+  font-family: inherit;
+  font-size: var(--void-text-base);
+  color: var(--void-text);
+  transition: border-color var(--void-speed-fast) var(--void-ease),
+              box-shadow var(--void-speed-fast) var(--void-ease);
+}
+
+.search-field input { padding: 9px 12px 9px 34px; width: 240px; max-width: 100%; }
+
+/* Every dropdown in the back office wears the same chevron, drawn rather
+   than left to the browser, so a select next to an input reads as the same
+   family of control on every platform. */
+.filter-select,
+.modal-content select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 9px 32px 9px 11px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23767676' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  cursor: pointer;
+}
+
+.search-field input:focus,
+.filter-select:focus,
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
+  outline: none;
+  border-color: var(--void-ink);
+  box-shadow: 0 0 0 1px var(--void-ink);
+}
+
+.search-field img {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  opacity: .45;
+  pointer-events: none;
+}
+
+/* =====================================================================
+   9. Tables
+   ===================================================================== */
+
+.table-container { overflow-x: auto; }
+
+.content-card table,
+.panel table { margin-top: 0; }
+
+.content-card th,
+.panel th {
+  text-align: left;
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--void-line);
+  color: var(--void-text-faint);
+  font-size: var(--void-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--void-track-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.content-card td,
+.panel td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--void-line-soft);
+  vertical-align: middle;
+  font-size: var(--void-text-base);
+  color: var(--void-text);
+}
+
+.content-card tbody tr,
+.panel tbody tr { transition: background var(--void-speed-fast) var(--void-ease); }
+
+.content-card tbody tr:hover,
+.panel tbody tr:hover { background: var(--void-surface-sunk); }
+
+.content-card tbody tr:last-child td,
+.panel tbody tr:last-child td { border-bottom: none; }
+
+.numeric { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted-cell { color: var(--void-text-faint); font-size: var(--void-text-sm); }
+.empty-row { text-align: center; color: var(--void-text-faint); padding: 28px 8px; font-size: var(--void-text-base); }
+
+.row-link {
+  color: var(--void-text);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--void-speed-fast) var(--void-ease);
+}
+.row-link:hover { border-bottom-color: currentColor; text-decoration: none; }
+
+/* ---------- the stock cell ----------
+   A count and, when it needs one, a word for what that count means. The
+   count is set in tabular figures and right-aligned so a column of them
+   lines up on the digit; the word sits after it at a fixed distance so
+   the flags line up too, instead of hanging off the end of the number. */
+
+.stock-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stock-count {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 4ch;
+  text-align: right;
+}
+
+.stock-count.is-out { color: var(--void-bad); }
+.stock-count.is-low { color: var(--void-warn); }
+
+/* Reserved whether or not this row has a flag, so the counts stay in one
+   column and the flags in another. */
+.stock-flag { flex: 0 0 46px; }
+.stock-flag .status-badge { display: block; padding: 3px 0; }
+
+/* ---------- row actions ---------- */
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  margin: 0;
+  border-radius: var(--void-radius-xs);
+  cursor: pointer;
+  line-height: 0;
+  transition: background var(--void-speed-fast) var(--void-ease),
+              opacity var(--void-speed-fast) var(--void-ease);
+}
+.icon-btn:hover { opacity: 1; background: var(--void-line-soft); transform: none; border: none; }
+.icon-btn:active { transform: none; }
+.icon-btn img { width: 16px; height: 16px; display: block; }
+
+.inline-form { display: inline-block; margin: 0; }
+.action-cell { display: flex; gap: 4px; align-items: center; }
+
+/* =====================================================================
+   10. Badges
+   ===================================================================== */
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--void-radius-pill);
+  font-size: var(--void-text-xs);
+  font-weight: 700;
+  letter-spacing: var(--void-track-caps);
+  text-transform: uppercase;
+  text-align: center;
+  background: var(--void-line-soft);
+  color: var(--void-text-muted);
+  white-space: nowrap;
+}
+
+.status-badge.status-pending { background: var(--void-status-pending-bg); color: var(--void-status-pending-ink); }
+.status-badge.status-approved { background: var(--void-status-approved-bg); color: var(--void-status-approved-ink); }
+.status-badge.status-completed { background: var(--void-status-completed-bg); color: var(--void-status-completed-ink); }
+.status-badge.status-rejected { background: var(--void-status-rejected-bg); color: var(--void-status-rejected-ink); }
+.status-badge.status-cancelled { background: var(--void-status-cancelled-bg); color: var(--void-status-cancelled-ink); }
+
+.channel-tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: var(--void-radius-xs);
+  font-size: var(--void-text-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--void-track-label);
+  border: 1px solid var(--void-line);
+  color: var(--void-text-muted);
+  background: var(--void-surface-sunk);
+}
+.channel-tag.is-pos { background: var(--void-ink); color: #fff; border-color: var(--void-ink); }
+
+/* =====================================================================
+   11. Buttons
+   ---------------------------------------------------------------------
+   The register's .btn, in the back office's words: same height, same
+   radius, same inversion on hover. The storefront sheet lifts every
+   button 2px on hover; these do not, because a button that jumps is the
+   opposite of the calm the rest of the interface is aiming for.
+   ===================================================================== */
+
+/* .btn-danger belongs in this list and was missing from it: it only ever
+   received its colours below, so on the order desk the Reject button drew
+   itself at the browser's default 13.33px with no padding, radius or caps,
+   right beside an Approve button that had all three. */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  padding: 10px 16px;
+  border-radius: var(--void-radius-sm);
+  font-family: inherit;
+  font-size: var(--void-text-sm);
+  font-weight: 700;
+  letter-spacing: var(--void-track-caps);
+  text-transform: uppercase;
+  line-height: 1.35;
+  cursor: pointer;
+  border: 1px solid var(--void-ink);
+  transition: background var(--void-speed-fast) var(--void-ease),
+              color var(--void-speed-fast) var(--void-ease),
+              border-color var(--void-speed-fast) var(--void-ease);
+}
+
+.btn-primary { background: var(--void-ink); color: #fff; }
+.btn-primary:hover { background: var(--void-surface); color: var(--void-ink); }
+
+.btn-secondary { background: var(--void-surface); color: var(--void-ink); }
+.btn-secondary:hover { background: var(--void-ink); color: #fff; }
+
+.btn-danger { border-color: var(--void-bad); background: var(--void-surface); color: var(--void-bad); }
+.btn-danger:hover { background: var(--void-bad); color: #fff; }
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-danger:active { transform: none; }
+
+/* The same button as a link. Anchors carrying .btn-* need the block
+   behaviour and the underline removed; stated once here instead of in an
+   inline style on every one of them. */
+a.btn-primary,
+a.btn-secondary,
+a.btn-danger {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* The row-scale button, for actions that live inside a table cell. */
+.btn-sm { padding: 6px 12px; font-size: var(--void-text-xs); }
+
+.status-actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 12px; }
+
+/* =====================================================================
+   12. Modals
+   ===================================================================== */
+
+.modal {
+  z-index: 12000;
+  left: 0;
+  width: 100%;
+  background: rgba(12, 12, 12, .55);
+  padding: 24px 20px;
+}
+
+.modal-content {
+  border-radius: var(--void-radius);
+  padding: 22px;
+  box-shadow: var(--void-shadow-modal);
+  animation: voidRise var(--void-speed) var(--void-ease) both;
+}
+
+.modal.is-closing .modal-content { animation: voidRise var(--void-speed-fast) var(--void-ease) reverse both; }
+
+.modal-content h3 {
+  font-size: var(--void-text-lg);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin: 0 0 16px;
+  color: var(--void-text);
+}
+
+.modal-content .close {
+  color: var(--void-text-faint);
+  font-size: 24px;
+  line-height: 1;
+  transition: color var(--void-speed-fast) var(--void-ease);
+}
+.modal-content .close:hover { color: var(--void-text); transform: none; }
+
+.modal-content label {
+  display: block;
+  margin: var(--void-gap) 0 0;
+  font-size: var(--void-text-sm);
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--void-text-muted);
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  padding: 9px 11px;
+  margin: 6px 0 0;
+  background: var(--void-surface);
+}
+
+.modal-content textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+.modal-content .form-hint { font-size: var(--void-text-xs); color: var(--void-text-faint); margin-top: 6px; line-height: 1.5; }
+.modal-content .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-content .form-row > div { min-width: 0; }
+
+/* Which record the dialog is editing, named at the top of it. */
+.modal-record {
+  margin: 0 0 var(--void-gap);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--void-line-soft);
+  font-size: var(--void-text-base);
+  font-weight: 700;
+  color: var(--void-text);
+}
+.modal-record:empty { display: none; }
+
+/* A checkbox and its label on one line. */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: var(--void-gap);
+  font-size: var(--void-text-base);
+  font-weight: 400;
+  color: var(--void-text);
+  cursor: pointer;
+}
+.modal-content .check-row input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--void-ink);
+  cursor: pointer;
+}
+
+/* Cancel and confirm, always the same pair at the foot of a dialog. */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: var(--void-pad);
+  border-top: 1px solid var(--void-line-soft);
+}
+.modal-actions > * { flex: 1; }
+
+/* =====================================================================
+   13. Order detail
+   ===================================================================== */
+
+.detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: var(--void-gap); align-items: start; }
+
+.detail-list { list-style: none; margin: 0; padding: 0; }
+.detail-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--void-line-soft);
+  font-size: var(--void-text-base);
+}
+.detail-list li:last-child { border-bottom: none; }
+.detail-list span { color: var(--void-text-muted); }
+.detail-list b { color: var(--void-text); text-align: right; font-variant-numeric: tabular-nums; }
+.detail-list li.total { font-size: var(--void-text-md); border-top: 1px solid var(--void-line); padding-top: 12px; margin-top: 4px; }
+.detail-list li.total b { font-size: var(--void-text-xl); }
+
+.proof-image {
+  width: 100%;
+  max-width: 320px;
+  border-radius: var(--void-radius);
+  border: 1px solid var(--void-line);
+  display: block;
+}
+
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li {
+  padding: 9px 0 9px 16px;
+  border-left: 2px solid var(--void-line-soft);
+  position: relative;
+  font-size: var(--void-text-base);
+}
+.timeline li::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 15px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--void-ink);
+}
+.timeline .when { display: block; color: var(--void-text-faint); font-size: var(--void-text-xs); margin-top: 3px; }
+
+/* =====================================================================
+   14. Pagination
+   ===================================================================== */
+
+.pagination-wrap { margin-top: var(--void-gap); }
+.pagination-wrap nav { font-size: var(--void-text-base); }
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--void-gap);
+  flex-wrap: wrap;
+}
+
+.pager-summary { margin: 0; font-size: var(--void-text-sm); color: var(--void-text-faint); }
+
+.pager-list {
+  list-style: none;
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.pager-link {
+  display: inline-block;
+  min-width: 34px;
+  padding: 7px 11px;
+  border: 1px solid var(--void-line);
+  border-radius: var(--void-radius-sm);
+  background: var(--void-surface);
+  color: var(--void-text-muted);
+  font-size: var(--void-text-sm);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+  transition: background var(--void-speed-fast) var(--void-ease),
+              color var(--void-speed-fast) var(--void-ease),
+              border-color var(--void-speed-fast) var(--void-ease);
+}
+
+.pager-link:hover:not(.is-current):not(.is-disabled):not(.is-gap) {
+  border-color: var(--void-text-faint);
+  color: var(--void-text);
+}
+
+.pager-link.is-current { background: var(--void-ink); color: #fff; border-color: var(--void-ink); }
+.pager-link.is-disabled { opacity: .45; cursor: not-allowed; }
+.pager-link.is-gap { border-color: transparent; background: transparent; }
+
+/* =====================================================================
+   15. Responsive
+   ===================================================================== */
+
+@media (max-width: 1100px) {
+  .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .detail-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 700px) {
+  .summary-grid,
+  .summary-grid.cols-2,
+  .summary-grid.cols-3 { grid-template-columns: 1fr; }
+  .modal-content .form-row { grid-template-columns: 1fr; }
+  .search-field input { width: 100%; }
+  .toolbar-controls { width: 100%; }
+  .toolbar-controls form { flex: 1; }
+}

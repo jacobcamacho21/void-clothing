@@ -1,0 +1,817 @@
+/*
+ * VOID — the customer's account pages.
+ *
+ * The storefront proper (home, catalog, product, cart) is the client's
+ * approved design and lives in index_design.css, untouched. This file covers
+ * the pages the shop grew around it — checkout, the account, and an order's
+ * own page — which are not merchandise but an application the customer signs
+ * in to.
+ *
+ * ---------------------------------------------------------------------
+ * Why this file exists.
+ * ---------------------------------------------------------------------
+ * Those three pages each carried their own <style> block, and each block had
+ * invented its own card, input, button, status pill and dialog. Three cards
+ * with three radii, two shadows, an inline link in a blue that appears
+ * nowhere else in the system, and rounded corners on pages whose header,
+ * product cards and Add to Cart button are all hard-edged.
+ *
+ * Every one of those is stated once here now, in the storefront's own shape
+ * language:
+ *
+ *     radius 0 · 1px #ddd rules · white fields · black uppercase buttons
+ *     that invert on hover
+ *
+ * so a customer moving from the catalog to checkout to their order history
+ * never leaves the same shop. Colours, spacing and timing come from
+ * void-tokens.css; nothing here invents a value.
+ *
+ * ---------------------------------------------------------------------
+ * The two scales this file keeps to.
+ * ---------------------------------------------------------------------
+ * TYPE. The storefront sets body copy at 15px and its product headings at
+ * 18px, so these pages read a step larger than the dense staff side. Every
+ * size the three pages use comes off this list and nowhere else (the auth
+ * card keeps its own 20px mark, in void-tokens.css, because the client has
+ * signed the two sign-ins off as matching and they must stay that way):
+ *
+ *     11  chips, status pills, table column headers      (uppercase, .08em)
+ *     12  form labels, the label half of a detail row    (uppercase, .08em)
+ *     13  meta lines, captions, the small print under a row
+ *     14  body copy, table cells, field values, buttons in body copy
+ *     16  card titles, the total line
+ *     22  the one figure a page is about — an order total
+ *     26  the page title
+ *
+ * Three weights: 400 reads, 600 buttons, 700 titles, labels and figures.
+ *
+ * SPACE. One rhythm — 4 / 8 / 12 / 16 / 20 / 24 / 32. A card's padding is
+ * --shop-card-pad, and everything that has to reach the card's edge (a card
+ * header's rule, a table's first and last column) is expressed in terms of
+ * it, so the ink down the left of a card lines up whatever is in it.
+ */
+
+/* =====================================================================
+   1. Page shell
+   ===================================================================== */
+
+body.shop-app {
+    background: var(--void-page);
+}
+
+.shop-page {
+    max-width: 1180px;
+    margin: 40px auto 64px;
+    padding: 0 20px;
+}
+
+.shop-page--narrow { max-width: 820px; }
+
+/* ---------------------------------------------------------------------
+   The page's own header.
+   ---------------------------------------------------------------------
+   One title per page, above everything, with the rule under it that says
+   where the header ends and the application begins. The account page used
+   to carry two 26px titles side by side — "Your Account" over the left
+   column and "Orders" over the right — which read as two pages pushed
+   together. "Orders" is a card title now; only the page gets a page title.
+   --------------------------------------------------------------------- */
+
+.shop-page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--void-line);
+}
+
+.shop-page-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    line-height: 1.2;
+    margin-bottom: 18px;
+}
+
+.shop-page-head .shop-page-title { margin-bottom: 0; }
+
+.shop-page-sub {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--void-text-muted);
+}
+
+/* =====================================================================
+   2. The card
+   ---------------------------------------------------------------------
+   One card for all three pages, cut the way the storefront cuts things.
+   Its padding is a custom property rather than a literal, because the card
+   header and the tables inside have to undo it to reach the card's edge.
+   ===================================================================== */
+
+.shop-card {
+    --shop-card-pad: 24px;
+
+    background: var(--void-surface);
+    border: 1px solid var(--void-line);
+    border-radius: 0;
+    box-shadow: var(--void-shadow-card);
+    padding: var(--shop-card-pad);
+    margin-bottom: 20px;
+}
+
+.shop-card:last-child { margin-bottom: 0; }
+
+/* ---------------------------------------------------------------------
+   The card's header.
+   ---------------------------------------------------------------------
+   A title, optionally a count, and at most one action on the right. It
+   sits in a band the width of the card — pulled out to the card's edges by
+   the padding it was given — so a card announces itself the same way on
+   every page instead of starting with a loose line of bold text.
+   --------------------------------------------------------------------- */
+
+.shop-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: calc(var(--shop-card-pad) * -1) calc(var(--shop-card-pad) * -1) var(--shop-card-pad);
+    padding: 14px var(--shop-card-pad);
+    background: var(--void-surface-sunk);
+    border-bottom: 1px solid var(--void-line);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -.01em;
+}
+
+/* A count beside a card title — how many addresses, how many orders. The
+   same chip the register puts beside its collections, so a number means
+   the same thing on both sides of the system. */
+.shop-count {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border: 1px solid var(--void-line-strong);
+    border-radius: var(--void-radius-pill);
+    background: var(--void-surface);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--void-text-faint);
+    font-variant-numeric: tabular-nums;
+    vertical-align: 1px;
+}
+
+/* A record inside a card: a saved address, a stored detail. */
+.shop-tile {
+    border: 1px solid var(--void-line);
+    padding: 16px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--void-text-muted);
+    transition: border-color var(--void-speed) var(--void-ease),
+                background var(--void-speed) var(--void-ease);
+}
+
+.shop-tile:last-child { margin-bottom: 0; }
+.shop-tile:hover { border-color: var(--void-text); background: var(--void-surface-sunk); }
+
+.shop-tile .name {
+    margin-bottom: 2px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--void-text);
+}
+
+/* The actions sit under a rule of their own, so they read as what you can
+   do with the record rather than as another line of the address. */
+.shop-tile .actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--void-line-soft);
+}
+
+/* =====================================================================
+   3. Text
+   ===================================================================== */
+
+/* A card's stored details — name, email, member since. A grid rather than
+   a run of bold-label-then-value, so every value starts on the same pixel
+   and the column of labels reads as a column. */
+.shop-datalist { margin: 0; }
+
+.shop-data {
+    display: grid;
+    /* Wide enough for "Member since" to stay on one line: a two-word label
+       that wraps puts its value on a different line from the two above it. */
+    grid-template-columns: 116px minmax(0, 1fr);
+    align-items: baseline;
+    gap: 4px 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--void-line-soft);
+}
+
+.shop-data:first-child { padding-top: 0; }
+
+.shop-data:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.shop-data dt {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--void-track-label);
+    text-transform: uppercase;
+    color: var(--void-text-faint);
+}
+
+.shop-data dd {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--void-text);
+    overflow-wrap: anywhere;
+}
+
+.shop-meta { color: var(--void-text-faint); font-size: 13px; margin-top: 4px; }
+.shop-note { font-size: 14px; color: var(--void-text-muted); line-height: 1.65; }
+
+/* =====================================================================
+   Terms page
+   ===================================================================== */
+
+.policy-copy {
+    --shop-card-pad: 40px;
+    max-width: 800px;
+    margin-right: auto;
+    margin-left: auto;
+    box-shadow: none;
+    color: var(--void-text);
+}
+
+.policy-copy > p:first-child {
+    max-width: 66ch;
+    margin: 0 0 32px;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--void-text-muted);
+}
+
+.policy-copy h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 32px 0 14px;
+    padding-top: 20px;
+    border-top: 1px solid var(--void-line-strong);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.policy-copy h2 span {
+    flex: 0 0 auto;
+    color: var(--void-text-faint);
+    font-size: 11px;
+    letter-spacing: .08em;
+}
+
+.policy-copy ul {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding-left: 20px;
+    color: var(--void-text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.policy-copy li { padding-left: 4px; }
+
+.policy-copy > p:not(:first-child) {
+    margin: 0;
+    color: var(--void-text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.policy-copy strong { color: var(--void-text); font-weight: 700; }
+
+@media (max-width: 700px) {
+    .policy-copy {
+        --shop-card-pad: 24px;
+    }
+
+    .policy-copy h2 {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+/* Nothing here yet. Drawn as an outline of the thing that is missing, so an
+   empty card looks deliberately empty rather than unfinished. */
+.shop-empty {
+    margin: 0;
+    padding: 28px 20px;
+    border: 1px dashed var(--void-line-strong);
+    background: var(--void-surface-sunk);
+    color: var(--void-text-dim);
+    font-size: 14px;
+    line-height: 1.65;
+    text-align: center;
+}
+
+.shop-empty a {
+    color: var(--void-text);
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid var(--void-line-strong);
+    transition: border-color var(--void-speed) var(--void-ease);
+}
+
+.shop-empty a:hover { border-bottom-color: currentColor; }
+
+/* The one inline action inside body copy — Edit, Add new, Delete. Set as the
+   text it sits in and underlined on hover, rather than as a blue link in a
+   shop that has no blue anywhere in it. */
+.shop-inline-link {
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--void-line-strong);
+    padding: 0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--void-text);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color var(--void-speed) var(--void-ease),
+                color var(--void-speed) var(--void-ease);
+}
+
+.shop-inline-link:hover { border-bottom-color: currentColor; }
+.shop-inline-link.is-danger { color: var(--void-bad); }
+
+/* =====================================================================
+   4. Fields
+   ---------------------------------------------------------------------
+   The storefront's .option-select, in every shape a form needs.
+   ===================================================================== */
+
+.shop-label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--void-track-label);
+    text-transform: uppercase;
+    color: var(--void-text);
+}
+
+.shop-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--void-surface);
+    border: 1px solid var(--void-line);
+    border-radius: 0;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--void-text);
+    transition: border-color var(--void-speed) var(--void-ease),
+                box-shadow var(--void-speed) var(--void-ease);
+}
+
+.shop-input:hover { border-color: var(--void-text); }
+
+.shop-input:focus {
+    outline: none;
+    border-color: var(--void-text);
+    box-shadow: 0 0 0 1px var(--void-text);
+}
+
+.shop-input::placeholder { color: var(--void-text-dim); }
+
+.shop-input[type="file"] { padding: 11px 12px; font-size: 13px; }
+
+.shop-field { margin-bottom: 16px; }
+.shop-field:last-child { margin-bottom: 0; }
+
+/* Two short fields on one line — a city and its province, a postal code and
+   its country. Keeps an address form to a readable height. */
+.shop-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+}
+
+/* Both halves of a pair keep the same gap under them, so the right-hand
+   field does not lose its margin to :last-child and leave the two columns
+   ending on different lines. */
+.shop-field-row .shop-field { margin-bottom: 16px; }
+
+.shop-field-error { color: var(--void-bad); font-size: 13px; margin-top: 5px; }
+
+.shop-alert {
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border-radius: 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.shop-alert.is-error {
+    background: var(--void-bad-bg);
+    border: 1px solid var(--void-bad-line);
+    color: var(--void-bad-ink);
+}
+
+.shop-alert.is-ok {
+    background: var(--void-ok-bg);
+    border: 1px solid var(--void-ok-line);
+    color: var(--void-ok-ink);
+}
+
+.shop-alert p { margin: 0 0 4px; }
+.shop-alert p:last-child { margin-bottom: 0; }
+.shop-alert b { display: block; margin-bottom: 3px; }
+
+/* The buttons themselves are .void-btn, in void-tokens.css — the
+   storefront's Add to Cart button. Only the stack they sit in is here. */
+.shop-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+/* =====================================================================
+   5. Status
+   ---------------------------------------------------------------------
+   One pill, on the account list and on an order's own page, drawn from the
+   shared order-status palette — so a Pending order is the same yellow to
+   the customer as it is on the staff order desk.
+   ===================================================================== */
+
+.order-status {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: var(--void-radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: var(--void-track-label);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.order-status.status-pending { background: var(--void-status-pending-bg); color: var(--void-status-pending-ink); }
+.order-status.status-approved { background: var(--void-status-approved-bg); color: var(--void-status-approved-ink); }
+.order-status.status-completed { background: var(--void-status-completed-bg); color: var(--void-status-completed-ink); }
+.order-status.status-rejected { background: var(--void-status-rejected-bg); color: var(--void-status-rejected-ink); }
+.order-status.status-cancelled { background: var(--void-status-cancelled-bg); color: var(--void-status-cancelled-ink); }
+
+/* =====================================================================
+   6. Tables
+   ---------------------------------------------------------------------
+   A table's first and last columns give up their padding, so the ink runs
+   to the same left and right edges as the card title above it. With the
+   padding left in, every table on these pages sat 8px inside everything
+   else in its card.
+   ===================================================================== */
+
+.shop-table { width: 100%; border-collapse: collapse; }
+
+.shop-table th {
+    padding: 0 10px 10px;
+    border-bottom: 1px solid var(--void-line);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--void-track-label);
+    text-transform: uppercase;
+    color: var(--void-text-faint);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.shop-table td {
+    padding: 13px 10px;
+    border-bottom: 1px solid var(--void-line-soft);
+    font-size: 14px;
+    line-height: 1.5;
+    vertical-align: top;
+}
+
+.shop-table th:first-child,
+.shop-table td:first-child { padding-left: 0; }
+
+.shop-table th:last-child,
+.shop-table td:last-child { padding-right: 0; }
+
+.shop-table tbody tr { transition: background var(--void-speed-fast) var(--void-ease); }
+.shop-table tbody tr:hover { background: var(--void-surface-sunk); }
+.shop-table tbody tr:last-child td { border-bottom: none; padding-bottom: 0; }
+
+.shop-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.shop-table .nowrap { white-space: nowrap; }
+
+.shop-table .ref-link {
+    color: var(--void-text);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--void-speed) var(--void-ease);
+}
+
+.shop-table .ref-link:hover { border-bottom-color: currentColor; }
+
+.shop-subitems {
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--void-text-muted);
+}
+
+/* =====================================================================
+   7. Totals
+   ===================================================================== */
+
+.shop-totals { list-style: none; margin: 20px 0 0; padding: 0; }
+
+.shop-totals li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--void-text-muted);
+}
+
+.shop-totals li b { color: var(--void-text); font-variant-numeric: tabular-nums; }
+
+.shop-totals li.grand {
+    align-items: baseline;
+    border-top: 1px solid var(--void-line);
+    margin-top: 8px;
+    padding-top: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--void-text);
+}
+
+.shop-totals li.grand b { font-size: 22px; letter-spacing: -.02em; }
+
+/* =====================================================================
+   8. Dialogs
+   ---------------------------------------------------------------------
+   The system's one dialog behaviour: the veil fades, the card rises.
+   ===================================================================== */
+
+.shop-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, .45);
+}
+
+.shop-modal.on {
+    display: flex;
+    animation: voidFade var(--void-speed-fast) var(--void-ease);
+}
+
+.shop-modal-card {
+    --shop-card-pad: 24px;
+
+    width: 440px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow: auto;
+    padding: var(--shop-card-pad);
+    background: var(--void-surface);
+    border: 1px solid var(--void-line);
+    border-radius: 0;
+    box-shadow: var(--void-shadow-modal);
+    animation: voidRise var(--void-speed) var(--void-ease) both;
+}
+
+/* The dialog's title wears the same band as a card's, so a dialog reads as
+   a card that opened rather than as a different component. */
+.shop-modal-card h3 {
+    margin: calc(var(--shop-card-pad) * -1) calc(var(--shop-card-pad) * -1) var(--shop-card-pad);
+    padding: 14px var(--shop-card-pad);
+    background: var(--void-surface-sunk);
+    border-bottom: 1px solid var(--void-line);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: var(--void-track-caps);
+    text-transform: uppercase;
+}
+
+/* =====================================================================
+   9. Order tracking
+   ---------------------------------------------------------------------
+   How far the order has got, as a row of stages. A stage that has been
+   reached is filled; one that has not is an outline.
+   ===================================================================== */
+
+.track-steps { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+
+.track-step {
+    flex: 1;
+    min-width: 130px;
+    padding: 12px 14px;
+    border: 1px solid var(--void-line);
+    background: var(--void-surface);
+    font-size: 12px;
+    color: var(--void-text-dim);
+    transition: background var(--void-speed) var(--void-ease),
+                border-color var(--void-speed) var(--void-ease),
+                color var(--void-speed) var(--void-ease);
+}
+
+.track-step b {
+    display: block;
+    font-size: 12px;
+    letter-spacing: var(--void-track-label);
+    text-transform: uppercase;
+}
+
+.track-step .step-when { display: block; margin-top: 5px; font-size: 13px; }
+
+.track-step.done {
+    background: var(--void-black);
+    border-color: var(--void-black);
+    color: #fff;
+}
+
+.track-step.done .step-when { color: #c9c9c9; }
+
+/* =====================================================================
+   10. Page layouts
+   ===================================================================== */
+
+.account-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+/* A column of cards, spaced by the column rather than by each card, so the
+   last card in a column does not have to remember to drop its margin. */
+.account-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.account-col .shop-card { margin-bottom: 0; }
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    border-bottom: 1px solid transparent;
+    color: var(--void-text-muted);
+    font-size: 14px;
+    text-decoration: none;
+    transition: border-color var(--void-speed) var(--void-ease),
+                color var(--void-speed) var(--void-ease);
+}
+
+.back-link:hover { color: var(--void-text); border-bottom-color: currentColor; }
+
+/* ---- checkout: the payment panel and the basket ---- */
+
+.pay-block {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid var(--void-line);
+    background: var(--void-surface-sunk);
+}
+
+.pay-qr {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    margin: 14px auto 0;
+    border: 1px solid var(--void-line);
+    background: #fff;
+}
+
+.basket-list { list-style: none; margin: 0; padding: 0; }
+
+.basket-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--void-line-soft);
+}
+
+.basket-item:first-child { padding-top: 0; }
+.basket-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.basket-img {
+    width: 62px;
+    height: 62px;
+    object-fit: cover;
+    border: 1px solid var(--void-line-soft);
+    background: var(--void-surface-sunk);
+}
+
+.basket-details { flex: 1; min-width: 0; }
+.basket-name { font-weight: 700; font-size: 14px; line-height: 1.4; }
+.basket-sub { margin-top: 3px; font-size: 13px; color: var(--void-text-muted); }
+.basket-price { font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* =====================================================================
+   11. Responsive
+   ===================================================================== */
+
+/* Between the two-column and the stacked layout the details column kept its
+   full 380px and the order table paid for it, down to an Items column too
+   narrow to hold a product name. The details column gives way first — and
+   once it is this narrow its labels sit over their values rather than
+   beside them, so an email address still has a line to itself. */
+@media (max-width: 1150px) {
+    .account-grid {
+        grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .shop-data {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
+}
+
+@media (max-width: 900px) {
+    .account-grid,
+    .checkout-grid { grid-template-columns: 1fr; }
+
+    .shop-page { margin: 26px auto 44px; }
+    .shop-card { --shop-card-pad: 20px; }
+
+    .shop-page-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 520px) {
+    .shop-page-title { font-size: 22px; }
+    .shop-field-row { grid-template-columns: 1fr; }
+
+    /* Below this width a 116px label column leaves an email nowhere to go,
+       so the label sits over its value instead of beside it. */
+    .shop-data {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Opt-outs from the storefront sheet.
+   ---------------------------------------------------------------------
+   index_design.css lifts every <button> 2px on hover. That is right for
+   Add to Cart and wrong for a word of body copy, so the inline actions
+   stay where they are and answer with their underline instead.
+   --------------------------------------------------------------------- */
+
+.shop-inline-link:hover,
+.shop-inline-link:active { transform: none; }
+
+/* A form that exists only to carry one inline action. */
+.inline-form { display: inline; margin: 0; }
+
+/* The payment panel's own rhythm: the note under the QR, the upload under
+   the note. Stated here rather than as inline styles on the markup. */
+.pay-block .shop-note { margin-top: 12px; }
+.pay-block .shop-field { margin: 16px 0 0; }
+
+/* On an order's page the card header carries a date under its title, which
+   makes that half two lines deep. The status pill beside it centres on the
+   pair rather than sitting on the first line's baseline. */
+.shop-section-title .shop-meta { display: block; font-weight: 400; }

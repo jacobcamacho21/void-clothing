@@ -1,0 +1,961 @@
+/*
+ * VOID POS — register styling.
+ *
+ * Built from the approved "Rail" concept: a fixed black sidebar, a collection
+ * rail, a scrolling product list with one-tap size chips, and a persistent
+ * order panel. Motion is kept to hover feedback and modal entry so nothing
+ * animates in the path of a cashier working at speed.
+ */
+
+/* Local aliases onto the shared design tokens in void-tokens.css, so the
+   register draws its palette from the same place as the rest of the system. */
+:root {
+  --ink: var(--void-ink);
+  --ink-2: var(--void-ink-soft);
+  --bg: var(--void-page);
+  --line: var(--void-line);
+  --line-2: var(--void-line-soft);
+  --muted: var(--void-text-muted);
+  --muted-2: var(--void-text-faint);
+  --ok: var(--void-ok);
+  --warn: var(--void-warn);
+  --bad: var(--void-bad);
+  --focus: var(--void-focus);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--void-font); }
+html, body { height: 100%; }
+
+body.pos-body {
+  background: var(--bg);
+  color: #111;
+  overflow: hidden;
+}
+
+button { font-family: inherit; cursor: pointer; }
+a { color: inherit; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #c9c9c9; border-radius: var(--void-radius); }
+
+/* :focus-visible and .visually-hidden come from void-tokens.css. */
+
+.shell { display: flex; height: 100vh; }
+
+/* The staff navigation rail now lives in void-sidebar.css, shared with
+   the back office so both render the identical component. */
+
+/* ======================= MAIN ======================= */
+.pos-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+/* The same bar as the back office .header-bar: same height, same padding,
+   same rule underneath. Moving between the register and the dashboard should
+   not move the header. */
+.pos-header {
+  background: #fff;
+  min-height: var(--void-header-h);
+  padding: 12px var(--void-gutter);
+  border-bottom: 1px solid var(--line);
+  box-shadow: none;
+  display: flex; align-items: center; gap: var(--void-pad); z-index: 5;
+}
+.page-title { font-size: var(--void-text-xl); font-weight: 700; letter-spacing: -.01em; color: var(--ink); }
+.crumb { font-size: var(--void-text-xs); color: var(--muted-2); margin-top: 3px; }
+.hb-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.shift { font-size: var(--void-text-micro); font-weight: 600; letter-spacing: var(--void-track-label); text-transform: uppercase; color: var(--muted-2); line-height: 1.5; text-align: right; }
+.shift b { display: block; margin-top: 2px; font-size: var(--void-text-md); font-weight: 700; letter-spacing: 0; text-transform: none; color: #111; font-variant-numeric: tabular-nums; }
+
+/* The workspace is the register's equivalent of the back office's
+   scrolling pane, and it enters the same way. Unfilled for the same reason:
+   the register must be readable even if the animation never runs. */
+.workspace {
+  flex: 1; display: flex; min-height: 0;
+  animation: voidRise var(--void-speed) var(--void-ease);
+}
+
+/* Leaving the register for another staff page. Same rule as the back
+   office: the pane goes, the rail stays. (admin.css, .content-body) */
+.pos-body.page-is-leaving .workspace {
+  animation: voidSink var(--void-speed-fast) var(--void-ease) forwards;
+}
+
+.pos-body.page-is-leaving { pointer-events: none; }
+
+/* ---- collection rail ----
+   The bright counterpart to the dark navigation rail: same grouped-label
+   structure and same left-edge active marker, so the two columns read as
+   one system. Groups are separated by a rule rather than bare whitespace,
+   and every count sits in its own right-aligned chip so the numbers line
+   up in a column the eye can scan. */
+.collections {
+  width: 188px; flex: 0 0 188px;
+  background: #fff; border-right: 1px solid var(--line);
+  padding: 6px 0 16px; overflow: auto;
+}
+
+.coll-group { padding: 14px 0 6px; }
+.coll-group + .coll-group {
+  margin-top: 6px;
+  border-top: 1px solid var(--line-2);
+}
+
+.collections h5 {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: var(--void-text-micro); font-weight: 700; letter-spacing: var(--void-track-label); color: var(--muted-2);
+  padding: 0 16px 10px; text-transform: uppercase;
+}
+.collections h5 .tally {
+  font-size: var(--void-text-micro); font-weight: 700; letter-spacing: .4px;
+  color: #9a9a9a; font-variant-numeric: tabular-nums; text-transform: none;
+}
+
+.coll {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 10px 14px 10px 16px;
+  background: none; border: none; border-left: 3px solid transparent;
+  font-size: var(--void-text-base); font-family: inherit; color: #333; text-align: left;
+  transition: background var(--void-speed-fast), color var(--void-speed-fast), border-color var(--void-speed-fast);
+}
+.coll .label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.coll:hover { background: #f6f6f6; color: #111; }
+.coll:hover .count { border-color: #d2d2d2; color: #444; }
+
+.coll.on {
+  background: #f2f2f2; border-left-color: var(--ink);
+  font-weight: 700; color: #111;
+}
+.coll.on .count { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+/* A low-stock count only earns the warning colour when there is something
+   to warn about. */
+.coll .count.is-alert { color: var(--warn); border-color: #e3d5a8; background: #fdf6e3; }
+.coll.on .count.is-alert { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+/* Counts are chips, not loose text, so they align down the right edge.
+   Scoped to `.count` and nothing else: as `.coll span` this also caught
+   `.coll .label`, which put every collection and filter name in a 10px
+   centred pill of its own — a chip inside a chip, and the one place in the
+   system where a label was set smaller than the badge beside it. */
+.coll .count {
+  flex: 0 0 auto; margin-left: auto;
+  min-width: 24px; padding: 2px 6px;
+  border: 1px solid var(--line-2); border-radius: var(--void-radius-pill);
+  background: #fafafa; color: var(--muted-2);
+  font-size: var(--void-text-micro); font-weight: 700; text-align: center;
+  font-variant-numeric: tabular-nums;
+  transition: background var(--void-speed-fast), color var(--void-speed-fast), border-color var(--void-speed-fast);
+}
+
+/* ---- product browser ---- */
+.browser { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 16px 20px 0; }
+
+.bsearch { position: relative; margin-bottom: 14px; }
+.bsearch input {
+  width: 100%; padding: 12px 14px 12px 40px;
+  border: 1px solid var(--void-line-strong); border-radius: var(--void-radius-sm);
+  font-family: inherit; font-size: var(--void-text-md); color: var(--void-text);
+  transition: border-color var(--void-speed-fast) var(--void-ease),
+              box-shadow var(--void-speed-fast) var(--void-ease);
+}
+.bsearch input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.bsearch svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); opacity: .45; }
+
+.rows { flex: 1; overflow-y: auto; padding-bottom: 18px; }
+
+/* A product row lifts on hover the way a product card does on the shop —
+   the same gesture, scaled down to a list. */
+.prow {
+  background: #fff; border: 1px solid var(--line); border-radius: var(--void-radius);
+  padding: 12px 14px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 14px;
+  transition: border-color var(--void-speed-fast) var(--void-ease),
+              box-shadow var(--void-speed-fast) var(--void-ease),
+              transform var(--void-speed-fast) var(--void-ease);
+}
+.prow:hover {
+  border-color: #b5b5b5;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
+  transform: translateY(-2px);
+}
+
+/* Everything left of the size chips opens the product dialog. It is a real
+   button so it is reachable from the keyboard, but it is dressed as the row
+   it sits in rather than as a control. */
+.popen {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 14px;
+  padding: 0; border: none; background: none; text-align: left;
+  font-family: inherit; color: inherit;
+}
+
+.prow .art {
+  width: 62px; height: 62px; flex: 0 0 62px;
+  background: #f4f4f4; border: 1px solid var(--line-2); border-radius: var(--void-radius-sm);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.prow .art img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform var(--void-speed) var(--void-ease);
+}
+/* The picture eases in behind its frame, which is the storefront's own
+   product-card gesture said quietly. */
+.prow:hover .art img { transform: scale(1.06); }
+
+.prow .idn { flex: 1; min-width: 0; }
+.prow .idn .nm {
+  display: block;
+  font-size: var(--void-text-md); font-weight: 700;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.prow .idn .meta { display: block; font-size: var(--void-text-xs); color: var(--muted); margin-top: 3px; }
+.prow .cost { font-size: var(--void-text-lg); font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.popen:hover .nm { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- size chips ----
+   A size and what is left of it. The remaining count says "left" because a
+   bare number under a size letter could as easily be a price. */
+.szrow { display: flex; gap: 6px; flex: 0 0 auto; }
+.szb {
+  width: 62px; padding: 8px 2px;
+  border: 1px solid var(--line); background: #fff; border-radius: var(--void-radius-xs);
+  text-align: center;
+  transition: background var(--void-speed-fast) var(--void-ease),
+              border-color var(--void-speed-fast) var(--void-ease),
+              color var(--void-speed-fast) var(--void-ease),
+              transform var(--void-speed-fast) var(--void-ease);
+}
+.szb:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); color: #fff; }
+.szb:hover:not(:disabled) small { color: #ccc; }
+/* The chip is the fastest control on the screen — one tap adds a line — so
+   it acknowledges the tap itself rather than leaving the order panel to do
+   it half a second later. */
+.szb:active:not(:disabled) { transform: scale(.95); }
+.szb:disabled { opacity: .4; cursor: not-allowed; }
+.szb b {
+  display: block;
+  font-size: var(--void-text-base); font-weight: 700;
+  letter-spacing: var(--void-track-caps);
+}
+.szb small {
+  display: block; margin-top: 3px;
+  font-size: var(--void-text-micro); color: var(--muted-2);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* Only the states worth a colour get one. A chip with plenty of stock is
+   left alone rather than dressed in green. */
+.szb.low small { color: var(--warn); font-weight: 700; }
+.szb.out { border-style: dashed; }
+.szb.out small { color: var(--bad); }
+
+/* ---- order panel ---- */
+.order-panel {
+  width: 352px; flex: 0 0 352px;
+  background: #fff; border-left: 1px solid var(--line);
+  display: flex; flex-direction: column;
+}
+.o-head { padding: 15px 18px; border-bottom: 1px solid var(--line-2); }
+.o-head .t { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.o-head h2 { font-size: var(--void-text-base); font-weight: 700; letter-spacing: var(--void-track-label); text-transform: uppercase; }
+
+.pill {
+  font-size: var(--void-text-micro); font-weight: 700; letter-spacing: var(--void-track-label);
+  padding: 3px 9px; border-radius: var(--void-radius-pill);
+  background: #efefef; color: #555; text-transform: uppercase;
+}
+.pill.open { background: var(--ink); color: #fff; }
+
+/* The reference is issued by the server when the sale is charged, so until
+   then this line says what will happen rather than showing a number that
+   looks like a document but is not one yet. */
+.o-ref {
+  font-size: var(--void-text-xs); color: var(--muted);
+  font-weight: 700; letter-spacing: .02em;
+  font-variant-numeric: tabular-nums; margin-bottom: 10px;
+  transition: color var(--void-speed-fast) var(--void-ease);
+}
+.o-ref.is-pending { color: var(--muted-2); font-weight: 400; letter-spacing: 0; font-style: italic; }
+/* The same dropdown as the back office: same border, same radius, same
+   drawn chevron, so a select is one control across the staff system. */
+.o-head select {
+  width: 100%;
+  appearance: none; -webkit-appearance: none;
+  padding: 9px 32px 9px 11px;
+  border: 1px solid var(--void-line-strong); border-radius: var(--void-radius-sm);
+  font-family: inherit; font-size: var(--void-text-base); color: var(--void-text);
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23767676' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  cursor: pointer;
+  transition: border-color var(--void-speed-fast) var(--void-ease),
+              box-shadow var(--void-speed-fast) var(--void-ease);
+}
+
+.o-head select:hover { border-color: var(--muted-2); }
+
+.o-head select:focus {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.o-lines { flex: 1; overflow-y: auto; padding: 4px 18px; }
+.empty { text-align: center; color: var(--muted-2); font-size: 13px; padding: 60px 8px; line-height: 1.7; }
+
+.ln { padding: 12px 0; border-bottom: 1px solid var(--line-2); }
+.ln .top { display: flex; justify-content: space-between; gap: 8px; }
+.ln .nm { font-size: 13px; font-weight: 700; }
+.ln .amt { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ln .bot { display: flex; align-items: center; justify-content: space-between; margin-top: 7px; gap: 8px; }
+.ln .sz { font-size: 11px; color: var(--muted); }
+.ln .controls { display: flex; align-items: center; }
+
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: var(--void-radius-xs); }
+.stepper button {
+  width: 26px; height: 26px; border: none; background: #fff;
+  font-size: var(--void-text-lg); font-weight: 700; color: var(--ink); line-height: 1;
+}
+.stepper button:hover:not(:disabled) { background: var(--ink); color: #fff; }
+.stepper button:disabled { opacity: .3; cursor: not-allowed; }
+.stepper span { width: 30px; text-align: center; font-size: var(--void-text-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.ln .del {
+  background: none; border: none; color: var(--muted-2);
+  font-size: 11px; text-decoration: underline; padding: 0 0 0 10px;
+}
+.ln .del:hover { color: var(--bad); }
+
+.o-foot { border-top: 1px solid var(--line); background: #fafafa; padding: 14px 18px 17px; }
+.tr { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 7px; }
+/* `display` beats the browser's own [hidden] rule, so any element given one
+   has to restate it — without this the discount line sat in the totals
+   reading "Discount ₱0.00" on every empty order. */
+.tr[hidden] { display: none; }
+.tr b { color: #111; font-variant-numeric: tabular-nums; }
+.tr.is-discount b { color: var(--ok); }
+.tr.grand {
+  border-top: 1px solid var(--line); padding-top: 11px; margin-top: 5px;
+  font-size: var(--void-text-lg); color: #111; font-weight: 700;
+}
+/* 700, not the `bolder` a <b> inherits inside a 700 parent — that resolves
+   to 900, a weight the system does not use and Arial has to synthesise. */
+.tr.grand b { font-size: var(--void-text-metric); font-weight: 700; letter-spacing: -.02em; }
+
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 13px; }
+.btn {
+  padding: 13px 0; border-radius: var(--void-radius-sm);
+  font-size: var(--void-text-sm); font-weight: 700; letter-spacing: var(--void-track-caps); text-transform: uppercase;
+  border: 1px solid var(--ink);
+  transition: background .24s, color .24s;
+}
+.btn.solid { background: var(--ink); color: #fff; }
+.btn.solid:hover:not(:disabled) { background: #fff; color: var(--ink); }
+.btn.solid:disabled { background: #ccc; border-color: #ccc; color: #888; cursor: not-allowed; }
+.btn.outl { background: #fff; color: var(--ink); }
+.btn.outl:hover:not(:disabled) { background: var(--ink); color: #fff; }
+.btn.outl:disabled { opacity: .45; cursor: not-allowed; }
+.btn.wide { grid-column: 1 / -1; }
+
+/* Pressing gives way very slightly. Enough to feel, not enough to move
+   anything around it. */
+.btn:active:not(:disabled) { transform: scale(.985); }
+
+/* The same button as a link, stated once rather than inline on each one. */
+a.btn {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  line-height: 1.35;
+}
+
+/* Busy state while a sale is posting. */
+.btn.is-busy { position: relative; color: transparent !important; }
+.btn.is-busy::after {
+  content: ''; position: absolute; inset: 0; margin: auto;
+  width: 15px; height: 15px; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .45); border-top-color: #fff;
+  animation: spin .7s linear infinite;
+}
+.btn.outl.is-busy::after { border-color: rgba(0, 0, 0, .25); border-top-color: var(--ink); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ======================= MODALS ======================= */
+.veil {
+  position: fixed; inset: 0;
+  background: rgba(12, 12, 12, .55);
+  display: none; align-items: center; justify-content: center;
+  z-index: 60; padding: 20px;
+}
+.veil.on { display: flex; animation: voidFade var(--void-speed-fast) var(--void-ease); }
+
+/* The modal shares the system entrance (voidRise, void-tokens.css) rather
+   than a curve of its own. */
+
+.modal {
+  background: #fff; border-radius: var(--void-radius); width: 100%; max-width: 460px;
+  overflow: hidden; animation: voidRise var(--void-speed) var(--void-ease) both;
+  box-shadow: var(--void-shadow-modal);
+  max-height: 92vh; display: flex; flex-direction: column;
+}
+.m-head {
+  padding: 16px 20px; border-bottom: 1px solid var(--line-2);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.m-head h2 { font-size: var(--void-text-base); font-weight: 700; letter-spacing: var(--void-track-label); text-transform: uppercase; }
+/* Colour only, like the back office's dialog close (admin.css). A close
+   control that moves under the cursor is a control that can be missed. */
+.m-head button {
+  background: none; border: none; font-size: 24px; color: var(--muted); line-height: 1;
+  padding: 0 4px;
+  transition: color var(--void-speed-fast) var(--void-ease);
+}
+.m-head button:hover { color: var(--ink); }
+.m-body { padding: 20px; overflow: auto; }
+.m-foot { padding: 0 20px 20px; display: flex; gap: 9px; }
+.m-foot .btn { flex: 1; }
+
+/* Dialog widths, named for what they hold rather than set inline on each
+   one, so a board, a list and a receipt are the same size wherever they
+   are opened from. */
+.modal.is-wide { max-width: 660px; }
+.modal.is-board { max-width: 820px; }
+.modal.is-list { max-width: 520px; }
+.modal.is-receipt { max-width: 410px; }
+
+/* =====================================================================
+   PRODUCT DIALOG
+   ---------------------------------------------------------------------
+   The shop's product page, at dialog scale: picture on the left, the
+   name, price and description on the right, the sizes as a row of chips,
+   a quantity, and the storefront's own black uppercase action button
+   that inverts on hover.
+   ===================================================================== */
+
+.quick-view { display: grid; grid-template-columns: 260px 1fr; gap: 22px; align-items: start; }
+
+.quick-art {
+  margin: 0;
+  aspect-ratio: 3 / 4;
+  background: #f4f4f4;
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.quick-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.quick-cat {
+  font-size: var(--void-text-micro); font-weight: 700;
+  letter-spacing: var(--void-track-label); text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+.quick-name {
+  margin-top: 6px;
+  font-size: var(--void-text-xl); font-weight: 700;
+  letter-spacing: -.01em; line-height: 1.25;
+}
+
+.quick-price {
+  margin-top: 6px;
+  font-size: var(--void-text-metric); font-weight: 700;
+  letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+}
+
+.quick-desc {
+  margin-top: 10px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--line-2);
+  font-size: var(--void-text-base); line-height: 1.65; color: var(--muted);
+}
+
+.quick-field { margin-top: 16px; }
+
+.quick-label {
+  display: block; margin-bottom: 8px;
+  font-size: var(--void-text-xs); font-weight: 700;
+  letter-spacing: var(--void-track-label); text-transform: uppercase;
+  color: var(--muted);
+}
+
+.quick-sizes { display: flex; flex-wrap: wrap; gap: 7px; }
+
+/* The row's size chip, one step larger — the same object seen closer,
+   not a second design for the same idea. */
+.qsize {
+  min-width: 66px; padding: 9px 6px;
+  border: 1px solid var(--line); background: #fff;
+  border-radius: var(--void-radius-xs); text-align: center;
+  transition: background var(--void-speed-fast) var(--void-ease),
+              border-color var(--void-speed-fast) var(--void-ease),
+              color var(--void-speed-fast) var(--void-ease),
+              transform var(--void-speed-fast) var(--void-ease);
+}
+.qsize b { display: block; font-size: var(--void-text-md); font-weight: 700; letter-spacing: var(--void-track-caps); }
+.qsize small { display: block; margin-top: 3px; font-size: var(--void-text-micro); color: var(--muted-2); white-space: nowrap; }
+
+.qsize:hover:not(:disabled) { border-color: var(--ink); transform: translateY(-1px); }
+.qsize.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.qsize.on small { color: #bdbdbd; }
+.qsize.out { border-style: dashed; opacity: .45; cursor: not-allowed; }
+
+.quick-sku {
+  margin-top: 9px;
+  font-size: var(--void-text-xs); color: var(--muted-2);
+  letter-spacing: .04em;
+}
+
+.quick-qty { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.quick-qty .stepper button { width: 32px; height: 32px; }
+.quick-qty .stepper span { width: 38px; font-size: var(--void-text-md); }
+
+.quick-line {
+  font-size: var(--void-text-lg); font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.quick-inorder {
+  margin-top: 12px; padding: 8px 11px;
+  background: var(--void-surface-sunk); border: 1px solid var(--line-2);
+  border-radius: var(--void-radius-xs);
+  font-size: var(--void-text-xs); color: var(--muted);
+}
+
+/* The storefront's .add-to-cart, verbatim: hard-edged, uppercase, and it
+   inverts on hover. The register's one place where the shop's own button
+   is the right button, because it is doing the shop's own job. */
+.quick-add {
+  width: 100%; margin-top: 18px; padding: 15px;
+  background: var(--ink); color: #fff;
+  border: 1px solid var(--ink); border-radius: 0;
+  font-family: inherit; font-size: var(--void-text-md); font-weight: 700;
+  letter-spacing: var(--void-track-caps); text-transform: uppercase;
+  transition: background var(--void-speed) var(--void-ease),
+              color var(--void-speed) var(--void-ease),
+              transform var(--void-speed-fast) var(--void-ease);
+}
+.quick-add:hover:not(:disabled) { background: #fff; color: var(--ink); }
+.quick-add:active:not(:disabled) { transform: scale(.99); }
+.quick-add:disabled { background: #ccc; border-color: #ccc; color: #7c7c7c; cursor: not-allowed; }
+
+@media (max-width: 620px) {
+  .quick-view { grid-template-columns: 1fr; gap: 16px; }
+  .quick-art { aspect-ratio: 16 / 10; }
+}
+
+.due { background: var(--ink); color: #fff; border-radius: var(--void-radius); padding: 16px 18px; margin-bottom: 16px; }
+.due span { font-size: var(--void-text-micro); font-weight: 600; letter-spacing: var(--void-track-label); text-transform: uppercase; opacity: .65; }
+.due b { display: block; font-size: var(--void-text-display); font-weight: 700; letter-spacing: -.02em; margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+.pay {
+  display: flex; gap: 11px; align-items: center; width: 100%;
+  padding: 14px; border: 1px solid var(--line); border-radius: var(--void-radius);
+  background: #fff; text-align: left; margin-bottom: 9px; transition: border-color .2s, box-shadow .2s;
+}
+.pay:hover { border-color: var(--ink); }
+.pay.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink) inset; }
+.pay b { font-size: 13px; display: block; }
+.pay small { font-size: 11px; color: var(--muted); }
+
+.tender label { display: block; font-size: var(--void-text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: var(--void-track-label); color: var(--muted); margin-bottom: 6px; }
+.tender input {
+  width: 100%; padding: 13px; border: 1px solid #ccc; border-radius: var(--void-radius-sm);
+  font-size: var(--void-text-xl); font-weight: 700; text-align: right;
+  font-variant-numeric: tabular-nums; margin-bottom: 10px;
+}
+.tender input:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+
+/* The panel a payment method reveals — cash tender, or a reference field. */
+.pay-panel { margin-top: 14px; }
+.pay-panel[hidden] { display: none; }
+
+.tender input.is-text {
+  font-size: var(--void-text-md);
+  font-weight: 400;
+  text-align: left;
+}
+
+.quick { display: flex; gap: 7px; margin-bottom: 14px; }
+.quick button {
+  flex: 1; padding: 10px 4px; border: 1px solid var(--line);
+  background: #fff; border-radius: var(--void-radius-xs); font-size: 12px; font-weight: 700;
+}
+.quick button:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.change {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 16px; background: #f4f4f4; border-radius: var(--void-radius);
+  font-size: 14px; font-weight: 700;
+}
+.change b { font-size: var(--void-text-metric); font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.change.is-short { background: #f8ecec; color: var(--bad); }
+
+.form-error {
+  margin: 0 0 14px; padding: 10px 12px;
+  background: #f8ecec; border: 1px solid #e6c9c9; border-radius: var(--void-radius-sm);
+  color: var(--bad); font-size: var(--void-text-sm); line-height: 1.5;
+}
+.form-error[hidden] { display: none; }
+
+/* ---- order tracking board ---- */
+.track { width: 100%; border-collapse: collapse; }
+.track thead th {
+  text-align: left; font-size: var(--void-text-xs); font-weight: 600; letter-spacing: var(--void-track-label); text-transform: uppercase;
+  color: var(--muted); padding: 9px 8px; border-bottom: 2px solid var(--line-2);
+}
+.track td { padding: 12px 8px; border-bottom: 1px solid var(--line-2); font-size: 13px; vertical-align: middle; }
+/* The same row hover the back office gives its tables, so a list of orders
+   behaves the same whether it is read here or at the order desk. */
+.track tbody tr { transition: background var(--void-speed-fast) var(--void-ease); }
+.track tbody tr:hover { background: var(--void-surface-sunk); }
+.track .ref { font-size: 12px; font-variant-numeric: tabular-nums; }
+.track .meta { font-size: 12px; color: #555; }
+
+.sbadge { display: inline-block; padding: 3px 10px; border-radius: var(--void-radius-pill); font-size: 11px; font-weight: 700; }
+.sbadge.status-pending { background: #efefef; color: #555; }
+.sbadge.status-approved { background: #e8eff8; color: #1f4f8f; }
+.sbadge.status-completed { background: #e4f0e6; color: var(--ok); }
+.sbadge.status-rejected { background: #f6e5e5; color: var(--bad); }
+.sbadge.status-cancelled { background: #f0eee9; color: var(--warn); }
+
+.mini {
+  padding: 5px 10px; font-size: var(--void-text-micro);
+  border: 1px solid var(--ink); background: #fff; border-radius: var(--void-radius-xs);
+  font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+  text-decoration: none; display: inline-block;
+}
+.mini {
+  transition: background var(--void-speed-fast) var(--void-ease),
+              color var(--void-speed-fast) var(--void-ease);
+}
+.mini:hover { background: var(--ink); color: #fff; }
+
+/* ---- held sales ---- */
+.held-row {
+  display: flex; align-items: center; gap: 14px;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--void-radius);
+  padding: 12px 14px; margin-bottom: 10px;
+  transition: border-color var(--void-speed-fast) var(--void-ease),
+              box-shadow var(--void-speed-fast) var(--void-ease);
+}
+/* A parked sale is a product row in another guise, and answers the same way. */
+.held-row:hover { border-color: #b5b5b5; box-shadow: 0 4px 14px rgba(0, 0, 0, .06); }
+.held-row .idn { flex: 1; min-width: 0; }
+.held-row .idn h4 { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.held-row .idn p { font-size: var(--void-text-xs); color: var(--muted); margin-top: 3px; }
+.held-row .cost { font-size: var(--void-text-lg); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---- toast ---- */
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(12px);
+  background: var(--ink); color: #fff; padding: 12px 20px; border-radius: var(--void-radius);
+  font-size: 13px; font-weight: 600; z-index: 90;
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+  max-width: 90vw; text-align: center;
+}
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.is-error { background: var(--bad); }
+.toast.is-ok { background: var(--ok); }
+
+/* =====================================================================
+   RECEIPT
+   ---------------------------------------------------------------------
+   A till roll, set in the browser: one narrow monospaced column, ruled
+   between the four things a receipt has to say — who issued it, what it
+   is, what was bought, and what it came to.
+
+   The rules are drawn with borders rather than <hr> elements so the
+   document is structure (header, table, definition lists) rather than a
+   stack of divs, and the same markup prints, shows on screen and drops
+   into the register's modal.
+   ===================================================================== */
+
+.rcpt {
+  background: #fff;
+  padding: 26px 24px 22px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #111;
+  border: 1px solid var(--line);
+  /* The torn edge of a till roll, top and bottom. */
+  border-top: 3px double #111;
+  border-bottom: 3px double #111;
+}
+
+/* ---- who issued it ---- */
+.rcpt-head { text-align: center; }
+
+.rcpt-brand {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 9px;
+  /* The tracking is applied to the right of each letter, which throws a
+     centred word off by half its tracking without this. */
+  text-indent: 9px;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.rcpt-store { font-weight: 700; letter-spacing: .04em; }
+.rcpt-line { font-size: 11px; color: #333; }
+
+.rcpt-doctype {
+  margin: 14px 0;
+  padding: 5px 0;
+  border-top: 1px dashed #9a9a9a;
+  border-bottom: 1px dashed #9a9a9a;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ---- what it is ----
+   Label left, value right, on one baseline. Values are the column the eye
+   scans, so they are the ones that line up. */
+.rcpt-meta { margin-bottom: 14px; }
+
+.rcpt-meta > div,
+.rcpt-sum > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 1px 0;
+}
+
+.rcpt-meta dt { color: #555; white-space: nowrap; }
+.rcpt-meta dd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* The order reference is the one thing on the receipt anyone is ever asked
+   to read back, so it is the one thing set in bold. */
+.rcpt-meta dd.is-key { font-weight: 700; letter-spacing: .02em; }
+
+.rcpt-block {
+  margin-bottom: 14px;
+  padding: 8px 10px;
+  background: #fafafa;
+  border: 1px dashed #cfcfcf;
+}
+
+.rcpt-block-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.rcpt-address { font-size: 11px; line-height: 1.55; }
+
+/* ---- what was bought ---- */
+.rcpt-items {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px dashed #9a9a9a;
+  margin-bottom: 2px;
+}
+
+.rcpt-items th {
+  padding: 6px 0 5px;
+  border-bottom: 1px dashed #9a9a9a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: #666;
+  text-align: left;
+}
+
+.rcpt-items td {
+  padding: 7px 0;
+  vertical-align: top;
+  border-bottom: 1px dotted #ddd;
+}
+
+.rcpt-items tbody tr:last-child td { border-bottom: none; }
+
+.rcpt-items .q { width: 34px; text-align: left; padding-right: 8px; font-variant-numeric: tabular-nums; }
+.rcpt-items .a { width: 84px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* The unit price belongs to the line above it, not to a column of its own —
+   a receipt has no room for a fourth column that is only ever read once. */
+.rcpt-items td .v {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  margin-top: 1px;
+}
+
+.rcpt-none { text-align: center; color: #888; padding: 14px 0; }
+
+/* ---- what it came to ---- */
+.rcpt-sum {
+  border-top: 1px dashed #9a9a9a;
+  padding-top: 8px;
+}
+
+.rcpt-sum dt { color: #555; }
+.rcpt-sum dd { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.rcpt-sum.is-payment {
+  margin-top: 10px;
+  border-top: 1px dashed #9a9a9a;
+}
+
+.rcpt-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 9px 0;
+  border-top: 1px solid #111;
+  border-bottom: 1px solid #111;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.rcpt-total b {
+  font-size: 19px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- closing ---- */
+.rcpt-foot {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed #9a9a9a;
+  text-align: center;
+}
+
+.rcpt-stamp {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 4px 14px;
+  border: 2px solid var(--ok);
+  color: var(--ok);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-indent: 3px;
+  transform: rotate(-2.5deg);
+}
+
+.rcpt-stamp.is-void { border-color: var(--bad); color: var(--bad); }
+.rcpt-stamp.is-pending { border-color: var(--warn); color: var(--warn); }
+
+.rcpt-reprint {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: -8px 0 12px;
+}
+
+/* The reference in Code 39. Widths are percentages of the symbol, so the
+   bars stay in proportion at any receipt width and on any printer. */
+.rcpt-barcode {
+  display: flex;
+  height: 46px;
+  /* Full column width. A Code 39 symbol of this length has 319 elements, so
+     every pixel given back to it goes straight into the narrow bar — at any
+     less than the full measure the bars stop being separable in print. */
+  width: 100%;
+}
+
+.rcpt-barcode i { display: block; height: 100%; }
+
+/* The bars are element backgrounds, and a browser printing with background
+   graphics turned off would drop every one of them and print a blank strip.
+   A barcode that does not print is worse than no barcode, so this one opts
+   out of that setting. */
+.rcpt-barcode i.b {
+  background: #111;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.rcpt-barcode i.s { background: transparent; }
+
+.rcpt-barcode-text {
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-indent: 1.4px;
+}
+
+.rcpt-thanks {
+  margin-top: 16px;
+  font-weight: 700;
+}
+
+.rcpt-note { font-size: 11px; color: #555; line-height: 1.55; }
+
+@media print {
+  .shell, .toast { display: none !important; }
+  .veil { display: none !important; }
+  .veil.on {
+    display: block !important; position: static;
+    background: none; padding: 0;
+  }
+  .veil.on .m-head, .veil.on .m-foot { display: none !important; }
+  .modal { max-width: none; box-shadow: none; animation: none; max-height: none; }
+  .m-body { padding: 0; overflow: visible; }
+  .rcpt { border: none; }
+}
+
+/* Standalone receipt page (print view). */
+.receipt-page { background: var(--bg); padding: 28px 24px 36px; overflow: auto; height: auto; }
+.receipt-page .rcpt {
+  max-width: 360px; margin: 0 auto;
+  box-shadow: var(--void-shadow-raised);
+  animation: voidRise var(--void-speed-slow) var(--void-ease);
+}
+.receipt-page .receipt-actions {
+  max-width: 360px; margin: 16px auto 0; display: flex; gap: 9px;
+}
+.receipt-page .receipt-actions .btn { flex: 1; }
+@media print {
+  body.receipt-page { background: #fff; padding: 0; }
+  .receipt-page .receipt-actions { display: none !important; }
+  .receipt-page .rcpt { border: none; max-width: none; box-shadow: none; animation: none; }
+}
+
+/* ======================= RESPONSIVE ======================= */
+@media (max-width: 1280px) {
+  .collections { display: none; }
+  .order-panel { width: 312px; flex-basis: 312px; }
+}
+
+@media (max-width: 1040px) {
+  .prow { flex-wrap: wrap; }
+  .prow .cost { order: 2; margin-left: auto; }
+  .szrow { order: 3; width: 100%; }
+  .szb { flex: 1; width: auto; }
+}
+
+@media (max-width: 900px) {
+  body.pos-body { overflow: auto; }
+  .shell { flex-direction: column; height: auto; min-height: 100vh; }
+  /* sidebar responsive rules live in void-sidebar.css */
+  .workspace { flex-direction: column; }
+  .browser { padding: 14px; }
+  .rows { overflow: visible; }
+  .order-panel { width: 100%; flex-basis: auto; border-left: none; border-top: 1px solid var(--line); }
+  .o-lines { max-height: 320px; }
+  .hb-right { flex-wrap: wrap; gap: 10px; }
+}
+
+/* The reduced-motion rule is declared once, in void-tokens.css. */
