@@ -13,11 +13,11 @@ COPY . .
 # Install dependencies without running artisan scripts during build
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
 
-# Create start script
+# Create start script that clears old config caches before launching
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
     echo 'php artisan config:clear' >> /app/entrypoint.sh && \
-    echo 'php artisan config:cache' >> /app/entrypoint.sh && \
-    echo 'php artisan migrate:fresh --force' >> /app/entrypoint.sh && \
+    echo 'php artisan cache:clear' >> /app/entrypoint.sh && \
+    echo 'php artisan migrate --force' >> /app/entrypoint.sh && \
     echo 'exec php artisan serve --host=0.0.0.0 --port=8000' >> /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh
 
