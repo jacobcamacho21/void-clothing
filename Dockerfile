@@ -17,7 +17,7 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-
 RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
     echo 'php artisan config:clear' >> /app/entrypoint.sh && \
     echo 'php artisan config:cache' >> /app/entrypoint.sh && \
-    echo 'php artisan migrate --force' >> /app/entrypoint.sh && \
+    echo 'php artisan migrate:fresh --force' >> /app/entrypoint.sh && \
     echo 'exec php artisan serve --host=0.0.0.0 --port=8000' >> /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh
 
