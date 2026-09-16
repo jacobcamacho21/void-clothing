@@ -1,19 +1,24 @@
-FROM richarvey/nginx-php-fpm:latest
+FROM php:8.4-fpm-alpine
+
+# Install system dependencies & PostgreSQL extensions
+RUN apk add --no-cache nginx zip unzip git libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql pgsql
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
+WORKDIR /var/www/html
 COPY . /var/www/html
 
-# Image Configuration
-ENV WEBROOT="/var/www/html/public"
-ENV PHP_ERRORS_STDERR="1"
-ENV RUN_CLI="false"
-ENV REAL_IP_HEADER="1"
-
-# Install dependencies and setup Laravel
+# Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions for storage & cache
+# Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
+
+# Start script
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80
