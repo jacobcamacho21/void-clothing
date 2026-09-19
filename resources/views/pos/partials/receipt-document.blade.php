@@ -37,21 +37,15 @@
     $stampText = match ($order->status) {
         OrderStatus::Completed => 'PAID',
         OrderStatus::Approved => 'APPROVED',
+        OrderStatus::Processing => 'PROCESSING',
+        OrderStatus::Dispatched => 'DISPATCHED',
         OrderStatus::Pending => 'UNPAID',
+        OrderStatus::CancellationRequested => 'CANCELLATION REQUESTED',
         OrderStatus::Rejected => 'REJECTED',
         OrderStatus::Cancelled => 'CANCELLED',
+        default => strtoupper($order->status->value ?? 'PROCESSING'),
     };
-    match($order->status) {
-        \App\Enums\OrderStatus::Pending => 'Pending',
-        \App\Enums\OrderStatus::Approved => 'Approved',
-        \App\Enums\OrderStatus::Processing => 'Processing',
-        \App\Enums\OrderStatus::Dispatched => 'Dispatched',
-        \App\Enums\OrderStatus::Completed => 'Completed',
-        \App\Enums\OrderStatus::Rejected => 'Rejected',
-        \App\Enums\OrderStatus::Cancelled => 'Cancelled',
-        \App\Enums\OrderStatus::CancellationRequested => 'Cancellation Requested',
-        default => $order->status->value ?? 'Processing',
-    };
+
     // The reference in bars as well as in type, so it can be scanned back at
     // the counter for a return instead of being keyed in by hand.
     $barcode = Code39::symbol($order->order_ref);
@@ -140,8 +134,6 @@
         @endif
 
         @if ($order->shipping_fee > 0)
-            {{-- "Shipping", because that is the word the basket, the checkout
-                 and the customer's own order page all use for it. --}}
             <div><dt>Shipping</dt><dd>{{ $symbol }}{{ number_format($order->shipping_fee, 2) }}</dd></div>
         @endif
     </dl>
