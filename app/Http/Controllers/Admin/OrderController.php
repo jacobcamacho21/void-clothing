@@ -102,17 +102,21 @@ class OrderController extends Controller
     }
 
     public function proof(Request $request, Order $order): \Symfony\Component\HttpFoundation\BinaryFileResponse
-    {
-        $this->authorize('view', $order);
+{
+    $this->authorize('view', $order);
 
-        abort_unless(
-            $order->proof_of_payment
-                && Storage::disk('public')->exists($order->proof_of_payment),
-            404
-        );
+    // Grab payment from relationship (checks latest payment or direct payment relation)
+    $payment = $order->latestPayment ?? $order->payment;
+    
+    $proofPath = $payment?->proof_path ?? $order->proof_of_payment;
 
-        return response()->file(Storage::disk('public')->path($order->proof_of_payment));
-    }
+    abort_unless(
+        $proofPath && Storage::disk('public')->exists($proofPath),
+        404
+    );
+
+    return response()->file(Storage::disk('public')->path($proofPath));
+}
 
     public function updateStatus(Request $request, Order $order): RedirectResponse
     {
