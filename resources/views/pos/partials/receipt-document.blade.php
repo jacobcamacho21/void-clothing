@@ -23,9 +23,9 @@
     $issuedAt = $order->placed_at ?? $order->created_at;
 
     $stampClass = match ($order->status) {
-        OrderStatus::Completed, OrderStatus::Approved => '',
-        OrderStatus::Rejected, OrderStatus::Cancelled => ' is-void',
-        default => ' is-pending',
+        OrderStatus::Completed, OrderStatus::Approved, OrderStatus::Processing, OrderStatus::Dispatched, OrderStatus::Pending => '',
+        OrderStatus::Rejected, OrderStatus::Cancelled => 'is-void',
+    default => '',
     };
 
     $stampText = match ($order->status) {
