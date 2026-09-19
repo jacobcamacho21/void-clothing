@@ -22,6 +22,7 @@ use App\Exceptions\InvalidStatusTransitionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,12 @@ use Illuminate\Support\Facades\Route;
 | The customer-facing shop. Kept at the site root so the existing links and
 | the approved design carry over unchanged.
 */
+Route::get('/fix-orders-constraint', function () {
+    DB::statement('ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check');
+    DB::statement("ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status IN ('pending', 'approved', 'processing', 'completed', 'cancelled'))");
+    
+    return 'Constraint updated successfully!';
+});
 
 Route::name('shop.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
