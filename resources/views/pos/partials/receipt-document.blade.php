@@ -35,7 +35,17 @@
         OrderStatus::Rejected => 'REJECTED',
         OrderStatus::Cancelled => 'CANCELLED',
     };
-
+    match($order->status) {
+    App\Enums\OrderStatus::Pending => 'Pending',
+    App\Enums\OrderStatus::Approved => 'Approved',
+    App\Enums\OrderStatus::Processing => 'Processing',
+    App\Enums\OrderStatus::Dispatched => 'Dispatched',
+    App\Enums\OrderStatus::Completed => 'Completed',
+    App\Enums\OrderStatus::Cancelled => 'Cancelled',
+    App\Enums\OrderStatus::Rejected => 'Rejected',
+    App\Enums\OrderStatus::CancellationRequested => 'Cancellation Requested',
+    default => $order->status->value,
+    };
     // The reference in bars as well as in type, so it can be scanned back at
     // the counter for a return instead of being keyed in by hand.
     $barcode = Code39::symbol($order->order_ref);
