@@ -28,6 +28,27 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
+| Global Route Aliases for Laravel Core Verification Listeners & Middleware
+|--------------------------------------------------------------------------
+| Placed OUTSIDE `Route::name('shop.')` so both `verification.notice` and
+| `verification.verify` exist strictly under their exact global names.
+*/
+Route::middleware('auth:customer')->group(function () {
+    Route::get('/shop/email/verify', function () {
+        return view('shop.auth.verify-email');
+    })->name('verification.notice');
+
+    Route::get('/shop/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {$request->fulfill();
+        return redirect()->route('shop.account')->with('status', 'Email verified successfully!');
+    })->middleware(['signed'])->name('verification.verify');
+
+    Route::post('/shop/email/verification-notification', function (Request $request) {$request->user('customer')->sendEmailVerificationNotification();
+        return back()->with('status', 'Verification link sent!');
+    })->middleware(['throttle:6,1'])->name('verification.send');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Storefront
 |--------------------------------------------------------------------------
 | The customer-facing shop. Kept at the site root so the existing links and
@@ -65,19 +86,8 @@ Route::name('shop.')->group(function () {
 
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
 
-    // Authenticated Customer Routes (Account, Checkout & Email Verification)
+    // Authenticated Customer Core Routes
     Route::middleware('auth:customer')->prefix('shop')->group(function () {
-
-        // Storefront Email Verification Notice & Resend Routes
-        Route::get('/email/verify', function () {
-            return view('shop.auth.verify-email');
-        })->name('verification.notice');
-
-        Route::post('/email/verification-notification', function (Request $request) {$request->user('customer')->sendEmailVerificationNotification();
-            return back()->with('status', 'Verification link sent!');
-        })->middleware(['throttle:6,1'])->name('verification.send');
-
-        // Core Customer Account & Checkout Routes
         Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
@@ -109,17 +119,6 @@ Route::name('shop.')->group(function () {
         })->name('account.order.cancellation');
     });
 });
-
-/*
-|--------------------------------------------------------------------------
-| Global Route Aliases for Built-In Laravel Notifications
-|--------------------------------------------------------------------------
-| Placed outside `Route::name('shop.')` so Laravel's native listener finds
-| `verification.verify` directly when generating email signatures.
-*/
-Route::get('/shop/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {$request->fulfill();
-    return redirect()->route('shop.account')->with('status', 'Email verified successfully!');
-})->middleware(['auth:customer', 'signed'])->name('verification.verify');
 
 /*
 |--------------------------------------------------------------------------
