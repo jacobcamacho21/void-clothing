@@ -7,15 +7,34 @@
 @php $symbol = $store['currency_symbol']; @endphp
 
 <div class="shop-page">
-    {{-- One page title, above both columns. The two 26px headings this page
-         used to open with — "Your Account" over the left column and "Orders"
-         over the right — read as two pages set side by side. --}}
+    {{-- One page title, above both columns. --}}
     <header class="shop-page-head">
         <div>
             <h1 class="shop-page-title">Your Account</h1>
             <p class="shop-page-sub">Your details, delivery addresses and the orders you have placed.</p>
         </div>
     </header>
+
+    @if (auth('customer')->check() && ! auth('customer')->user()->hasVerifiedEmail())
+        <div class="shop-alert" style="background: #000000; color: #ffffff; border: 1px solid #333333; display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;" role="alert">
+            <div>
+                <b style="color: #ffffff; text-transform: uppercase; font-size: 0.8125rem; letter-spacing: 0.05em;">Email Not Verified</b>
+                <div style="font-size: 0.8125rem; color: #a3a3a3; margin-top: 0.25rem;">Please check your inbox and verify your email address to secure your account.</div>
+            </div>
+            <form method="POST" action="{{ route('shop.verification.send') }}">
+                @csrf
+                <button type="submit" class="void-btn void-btn--ghost" style="background: #ffffff; color: #000000; border: none; padding: 0.375rem 0.75rem; font-size: 0.75rem; white-space: nowrap;">
+                    Resend Link
+                </button>
+            </form>
+        </div>
+    @endif
+
+    @if (session('status'))
+        <div class="shop-alert is-ok" role="status">
+            {{ session('status') }}
+        </div>
+    @endif
 
     @if (session('order_placed'))
         <div class="shop-alert is-ok" role="status">
@@ -91,8 +110,6 @@
                 @endforelse
             </section>
 
-            {{-- Signing out is not what this page is for, so it is the quiet
-                 button rather than the loud one. --}}
             <form method="POST" action="{{ route('shop.logout') }}">
                 @csrf
                 <button type="submit" class="void-btn void-btn--block void-btn--ghost">Logout</button>
@@ -158,7 +175,7 @@
     </div>
 </div>
 
-{{-- Edit name --}}
+{{-- Edit name modal --}}
 <div class="shop-modal" id="editNameModal">
     <div class="shop-modal-card">
         <form method="POST" action="{{ route('shop.account.name') }}">
@@ -179,7 +196,7 @@
     </div>
 </div>
 
-{{-- Add address --}}
+{{-- Add address modal --}}
 <div class="shop-modal" id="addAddressModal">
     <div class="shop-modal-card">
         <form method="POST" action="{{ route('shop.account.addresses.store') }}">
@@ -227,7 +244,7 @@
     </div>
 </div>
 
-{{-- Edit address --}}
+{{-- Edit address modal --}}
 <div class="shop-modal" id="editAddressModal">
     <div class="shop-modal-card">
         <form method="POST" action="" id="editAddressForm">

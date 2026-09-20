@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -25,12 +26,12 @@ class CustomerAuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
+        $credentials =$request->validate([
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        $throttleKey = 'shop|'.mb_strtolower($credentials['username']).'|'.$request->ip();
+        $throttleKey = 'shop|'.mb_strtolower($credentials['username']).'\vert{}'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_ATTEMPTS)) {
             throw ValidationException::withMessages([
@@ -41,7 +42,7 @@ class CustomerAuthController extends Controller
             ]);
         }
 
-        if (! Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::guard('customer')->attempt($credentials,$request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, self::DECAY_SECONDS);
 
             throw ValidationException::withMessages([
@@ -49,8 +50,7 @@ class CustomerAuthController extends Controller
             ]);
         }
 
-        RateLimiter::clear($throttleKey);
-        $request->session()->regenerate();
+        RateLimiter::clear($throttleKey);$request->session()->regenerate();
 
         return redirect()->intended(route('shop.home'));
     }
@@ -62,7 +62,7 @@ class CustomerAuthController extends Controller
 
     public function register(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $data =$request->validate([
             'username' => ['required', 'string', 'max:50', 'unique:customers,username'],
             'email' => ['required', 'email', 'max:100', 'unique:customers,email'],
             'password' => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
@@ -74,16 +74,20 @@ class CustomerAuthController extends Controller
         ]);
 
         $customer = Customer::create([
-            ...$data,
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => $data['password'],
             'terms_accepted_at' => Carbon::now(),
         ]);
 
-        Auth::guard('customer')->login($customer);
-        $request->session()->regenerate();
+        // Fire event to send verification email automatically
+        event(new Registered($customer));
+
+        Auth::guard('customer')->login($customer);$request->session()->regenerate();
 
         return redirect()
-            ->route('shop.home')
-            ->with('status', 'Welcome to VOID, '.$customer->username.'.');
+            ->route('verification.notice')
+            ->with('status', 'Welcome to VOID, '.$customer->username.'. Please check your email to verify your account.');
     }
 
     public function logout(Request $request): RedirectResponse
@@ -92,8 +96,7 @@ class CustomerAuthController extends Controller
 
         // Only the shopper's session state is dropped; a cashier signed in on
         // the same browser through the `web` guard keeps their session.
-        $request->session()->forget('shop.cart');
-        $request->session()->regenerate();
+        $request->session()->forget('shop.cart');$request->session()->regenerate();
 
         return redirect()->route('shop.home');
     }

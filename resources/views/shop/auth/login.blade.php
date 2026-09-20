@@ -16,6 +16,12 @@
         <input type="password" id="password" name="password" placeholder="Password"
                required autocomplete="current-password">
 
+        <div style="display: flex; justify-content: flex-end; margin: -0.25rem 0 1rem 0;">
+            <a href="{{ route('shop.password.request') }}" style="font-size: 0.8125rem; color: #666; text-decoration: underline;">
+                Forgot password?
+            </a>
+        </div>
+
         <button type="submit">Login</button>
     </form>
 @endsection
