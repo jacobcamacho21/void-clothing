@@ -1885,9 +1885,13 @@ html {
     }
 }
 
+
 .mobile-nav {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100dvh;
     z-index: 1200;
     background: #fff;
     display: flex;
@@ -1895,6 +1899,7 @@ html {
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(.77, 0, .18, 1);
 }
+
 
 .mobile-nav.is-open {
     transform: translateX(0);
@@ -2008,4 +2013,16 @@ body.mobile-nav-locked {
     letter-spacing: .12em;
     text-transform: uppercase;
     font-weight: 700;
+}
+@media (max-width: 640px) {
+    .shop-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .shop-table th,
+    .shop-table td {
+        white-space: nowrap;
+    }
 }
