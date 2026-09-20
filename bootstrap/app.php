@@ -14,6 +14,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Render terminates TLS at its load balancer and forwards requests
+        // over plain HTTP with X-Forwarded-* headers. Without this, Laravel
+        // thinks every request is http://, which breaks signed URLs (email
+        // verification, password reset) since the scheme is part of the
+        // signature hash. '*' is safe here since Render is the only thing
+        // that can reach this container directly.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
             'active' => EnsureUserIsActive::class,
