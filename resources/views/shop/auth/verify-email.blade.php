@@ -16,7 +16,7 @@
     @endif
 
     <div style="display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
-        <form method="POST" action="{{ route('shop.verification.send') }}">
+        <form method="POST" action="{{ route('verification.send') }}">
             @csrf
             <button type="submit" style="padding: 0.75rem 1.25rem; background: #000000; color: #ffffff; border: none; border-radius: 4px; font-weight: 600; text-transform: uppercase; font-size: 0.875rem; cursor: pointer;">
                 Resend Email

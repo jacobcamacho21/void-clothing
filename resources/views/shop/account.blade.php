@@ -21,12 +21,12 @@
                 <b style="color: #ffffff; text-transform: uppercase; font-size: 0.8125rem; letter-spacing: 0.05em;">Email Not Verified</b>
                 <div style="font-size: 0.8125rem; color: #a3a3a3; margin-top: 0.25rem;">Please check your inbox and verify your email address to secure your account.</div>
             </div>
-            <form method="POST" action="{{ route('shop.verification.send') }}">
-                @csrf
-                <button type="submit" class="void-btn void-btn--ghost" style="background: #ffffff; color: #000000; border: none; padding: 0.375rem 0.75rem; font-size: 0.75rem; white-space: nowrap;">
-                    Resend Link
-                </button>
-            </form>
+            <form method="POST" action="{{ route('verification.send') }}">
+    @csrf
+    <button type="submit" class="void-btn void-btn--ghost" style="background: #ffffff; color: #000000; border: none; padding: 0.375rem 0.75rem; font-size: 0.75rem; white-space: nowrap;">
+        Resend Link
+    </button>
+</form>
         </div>
     @endif
 
