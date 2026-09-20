@@ -207,8 +207,9 @@ nav a {
 
 @media (max-width: 480px) {
     .products {
-        grid-template-columns: 1fr;
-            padding: 0 15px 50px 15px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding: 0 14px 40px 14px;
     }
 }
 
@@ -1941,4 +1942,16 @@ html {
 /* Prevents the page behind the panel from scrolling while it's open. */
 body.mobile-nav-locked {
     overflow: hidden;
+}
+@media (max-width: 480px) {
+    .cart {
+        width: 88vw;
+        max-width: 360px;
+        right: -100%;
+        padding: 60px 18px 30px;
+    }
+ 
+    .cart-active {
+        right: 0;
+    }
 }
