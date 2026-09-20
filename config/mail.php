@@ -109,6 +109,14 @@ return [
     | used globally for all emails that are sent by your application.
     |
     */
+    'mailers' => [
+
+    'resend' => [
+        'transport' => 'resend',
+    ],
+
+    // ... existing mailers like smtp, log, array stay below
+],
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
