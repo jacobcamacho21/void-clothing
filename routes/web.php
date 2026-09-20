@@ -67,21 +67,21 @@ Route::name('shop.')->group(function () {
 
     // Authenticated Customer Routes (Account, Checkout & Email Verification)
     Route::middleware('auth:customer')->prefix('shop')->group(function () {
-        
-        // Email Verification Routes
-        Route::get('/email/verify', function () {
-            return view('shop.auth.verify-email');
-        })->name('verification.notice');
 
-        Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-            $request->fulfill();
-            return redirect()->route('shop.account')->with('status', 'Email verified successfully!');
-        })->middleware(['signed'])->name('verification.verify');
+    // Define both 'verification.notice' and explicit fallback names
+    Route::get('/email/verify', function () {
+        return view('shop.auth.verify-email');
+    })->name('verification.notice');
 
-        Route::post('/email/verification-notification', function (Request $request) {
-            $request->user('customer')->sendEmailVerificationNotification();
-            return back()->with('status', 'Verification link sent!');
-        })->middleware(['throttle:6,1'])->name('verification.send');
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('shop.account')->with('status', 'Email verified successfully!');
+    })->middleware(['signed'])->name('/email/verify/{id}/{hash}')->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user('customer')->sendEmailVerificationNotification();
+        return back()->with('status', 'Verification link sent!');
+    })->middleware(['throttle:6,1'])->name('verification.send');
 
         // Core Customer Account & Checkout Routes
         Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
@@ -133,6 +133,12 @@ Route::prefix('staff')->name('staff.')->group(function () {
         ->middleware('auth:web')
         ->name('logout');
 });
+
+// Global alias for Laravel's built-in verification listener
+Route::get('/shop/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect()->route('shop.account')->with('status', 'Email verified successfully!');
+})->middleware(['auth:customer', 'signed'])->name('verification.verify');
 
 Route::middleware(['auth:web', 'active'])->group(function () {
 
