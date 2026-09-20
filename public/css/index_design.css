@@ -1714,3 +1714,62 @@ html {
     right: 0;
     transform: translateX(0);
 }
+
+/* =====================================================================
+   Mobile: storefront topbar
+   ---------------------------------------------------------------------
+   Nothing above touches .topbar, .topbar nav or .nav-icons below any
+   breakpoint. The nav is centered with `left: 50%; transform:
+   translateX(-50%)` regardless of viewport width, so on a phone it sits
+   directly on top of the logo instead of making room for it — that is
+   the overlap in the screenshot. This is the header's first mobile
+   breakpoint: it drops the desktop centering, wraps the nav into its
+   own row under the logo, and shrinks the logo/icon sizing to fit.
+   Appended rather than edited into the rules above so nothing already
+   depended upon by desktop changes.
+   ===================================================================== */
+ 
+@media (max-width: 640px) {
+    .topbar {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 10px 12px;
+        row-gap: 8px;
+    }
+ 
+    .topbar .logo {
+        margin-right: 0;
+    }
+ 
+    .topbar .logo img {
+        height: 44px;
+    }
+ 
+    /* Desktop centers this with left: 50%, which is exactly what put
+       HOME on top of the logo on a narrow screen. On mobile it drops
+       out of absolute positioning and becomes a plain wrapping row
+       under the logo and icons instead. */
+    .topbar nav {
+        position: static;
+        left: auto;
+        transform: none;
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+ 
+    .topbar nav a {
+        font-size: 11px;
+        padding: 0 4px;
+    }
+ 
+    .nav-icons {
+        gap: 16px;
+    }
+ 
+    .nav-icons img {
+        width: 19px;
+    }
+}
