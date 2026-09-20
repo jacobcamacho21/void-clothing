@@ -1772,4 +1772,173 @@ html {
     .nav-icons img {
         width: 19px;
     }
+    .hp {
+        height: auto;
+        min-height: 0;
+    }
+ 
+    .hp img {
+        width: 100%;
+        max-width: 100%;
+        max-height: none;
+        height: auto;
+    }
+}
+
+/* =====================================================================
+   Mobile: hamburger nav + slide-out panel
+   ---------------------------------------------------------------------
+   Replaces the earlier "wrap nav under logo" mobile fix. Below 640px the
+   desktop nav is hidden entirely, a hamburger button takes its place on
+   the left, and .mobile-nav (added in topbar.blade.php) becomes the real
+   navigation — a full-screen white panel that slides in from the left,
+   toggled by mobile-nav.js's open/close handlers via the .is-open class.
+   Above 640px the hamburger and panel are hidden and the desktop topbar
+   is unchanged.
+   ===================================================================== */
+
+@media (max-width: 640px) {
+    .topbar {
+        height: 56px;
+        padding: 0 14px;
+        justify-content: space-between;
+    }
+
+    /* Logo centers independently of the hamburger/icons on either side,
+       rather than sitting in normal flex flow, so it stays visually
+       centered even though the two sides aren't the same width. */
+    .topbar .logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-right: 0;
+    }
+
+    .topbar .logo img {
+        height: 28px;
+    }
+
+    .topbar nav {
+        display: none;
+    }
+
+    .hamburger-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 22px;
+        height: 22px;
+        padding: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .hamburger-btn span {
+        display: block;
+        width: 100%;
+        height: 2px;
+        background: #111;
+    }
+
+    .nav-icons {
+        gap: 18px;
+        z-index: 2;
+    }
+
+    .nav-icons img {
+        width: 19px;
+    }
+
+    /* The standalone profile icon moves into the slide-out panel's
+       bottom LOGIN/ACCOUNT row on mobile instead of sitting in the
+       header, matching the reference layout. */
+    .nav-icon-user {
+        display: none;
+    }
+}
+
+@media (min-width: 641px) {
+    .hamburger-btn,
+    .mobile-nav {
+        display: none !important;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   The panel itself. Not nested in the mobile media query because it
+   needs to exist (off-screen) at all widths above 640px too, in case a
+   window is resized while open — display:none above 641px (rule above)
+   handles that case instead.
+   --------------------------------------------------------------------- */
+
+.mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(.77, 0, .18, 1);
+}
+
+.mobile-nav.is-open {
+    transform: translateX(0);
+}
+
+.mobile-nav-head {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px;
+}
+
+.mobile-nav-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    color: #111;
+}
+
+.mobile-nav-links {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 24px;
+}
+
+.mobile-nav-links a {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+    text-decoration: none;
+    color: #111;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.mobile-nav-login {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 24px;
+    border-top: 1px solid #eee;
+    text-decoration: none;
+    color: #111;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.mobile-nav-login img {
+    width: 16px;
+}
+
+/* Prevents the page behind the panel from scrolling while it's open. */
+body.mobile-nav-locked {
+    overflow: hidden;
 }

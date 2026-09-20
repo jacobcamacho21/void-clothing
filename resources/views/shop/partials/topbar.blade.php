@@ -1,4 +1,10 @@
 <div class="topbar">
+    <button type="button" class="hamburger-btn" id="mobile-nav-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
     <div class="logo">
         <a href="{{ route('shop.home') }}" class="logo-link">
             <img src="{{ asset('images/site/Void_Logo.png') }}" alt="VOID logo">
@@ -14,8 +20,60 @@
     <div class="nav-icons">
         <a href="{{ route('shop.search') }}"><img src="{{ asset('images/icons/Search.png') }}" alt="Search"></a>
         <a href="#" id="cart-btn"><img src="{{ asset('images/icons/Cart.png') }}" alt="Cart"></a>
-        <a href="{{ auth('customer')->check() ? route('shop.account') : route('shop.login') }}">
+        <a href="{{ auth('customer')->check() ? route('shop.account') : route('shop.login') }}" class="nav-icon-user">
             <img src="{{ asset('images/icons/User.png') }}" alt="Profile">
         </a>
     </div>
 </div>
+
+{{-- Mobile-only slide-out panel. Hidden entirely above the 640px
+     breakpoint by CSS; the hamburger button above is the only way to
+     open it on a phone. --}}
+<div class="mobile-nav" id="mobile-nav">
+    <div class="mobile-nav-head">
+        <button type="button" class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">&times;</button>
+    </div>
+
+    <nav class="mobile-nav-links">
+        <a href="{{ route('shop.home') }}">HOME</a>
+        <a href="{{ route('shop.products') }}">ALL PRODUCTS</a>
+        <a href="{{ route('shop.apparel') }}">APPAREL</a>
+    </nav>
+
+    <a href="{{ auth('customer')->check() ? route('shop.account') : route('shop.login') }}" class="mobile-nav-login">
+        <img src="{{ asset('images/icons/User.png') }}" alt="">
+        {{ auth('customer')->check() ? 'ACCOUNT' : 'LOGIN' }}
+    </a>
+</div>
+
+<script>
+    (function () {
+        var btn = document.getElementById('mobile-nav-btn');
+        var closeBtn = document.getElementById('mobile-nav-close');
+        var panel = document.getElementById('mobile-nav');
+
+        if (!btn || !closeBtn || !panel) return;
+
+        function openNav() {
+            panel.classList.add('is-open');
+            btn.setAttribute('aria-expanded', 'true');
+            document.body.classList.add('mobile-nav-locked');
+        }
+
+        function closeNav() {
+            panel.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('mobile-nav-locked');
+        }
+
+        btn.addEventListener('click', openNav);
+        closeBtn.addEventListener('click', closeNav);
+
+        // Clicking a link inside the panel should navigate normally, but
+        // also drop the locked/open state so a back-button return to this
+        // page doesn't show the menu still open.
+        panel.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', closeNav);
+        });
+    })();
+</script>
