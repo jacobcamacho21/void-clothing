@@ -26,9 +26,6 @@
     </div>
 </div>
 
-{{-- Mobile-only slide-out panel. Hidden entirely above the 640px
-     breakpoint by CSS; the hamburger button above is the only way to
-     open it on a phone. --}}
 <div class="mobile-nav" id="mobile-nav">
     <div class="mobile-nav-head">
         <button type="button" class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">&times;</button>
@@ -51,7 +48,6 @@
         var btn = document.getElementById('mobile-nav-btn');
         var closeBtn = document.getElementById('mobile-nav-close');
         var panel = document.getElementById('mobile-nav');
-
         if (!btn || !closeBtn || !panel) return;
 
         function openNav() {
@@ -59,7 +55,6 @@
             btn.setAttribute('aria-expanded', 'true');
             document.body.classList.add('mobile-nav-locked');
         }
-
         function closeNav() {
             panel.classList.remove('is-open');
             btn.setAttribute('aria-expanded', 'false');
@@ -68,10 +63,6 @@
 
         btn.addEventListener('click', openNav);
         closeBtn.addEventListener('click', closeNav);
-
-        // Clicking a link inside the panel should navigate normally, but
-        // also drop the locked/open state so a back-button return to this
-        // page doesn't show the menu still open.
         panel.querySelectorAll('a').forEach(function (link) {
             link.addEventListener('click', closeNav);
         });
