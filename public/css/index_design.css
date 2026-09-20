@@ -1907,8 +1907,8 @@ html {
 
 .mobile-nav-head {
     display: flex;
-    justify-content: flex-end;
-    padding: 16px;
+    justify-content: flex-start;
+    padding: 16px 24px;
 }
 
 .mobile-nav-close {
@@ -1923,19 +1923,17 @@ html {
 .mobile-nav-links {
     display: flex;
     flex-direction: column;
-    padding: 8px 24px;
+    padding: 8px 0;
 }
 
 .mobile-nav-links a {
-    padding: 18px 0;
+    padding: 20px 24px;
     border-bottom: 1px solid #eee;
     text-decoration: none;
     color: #111;
     font-size: 13px;
     font-weight: 700;
-    letter-spacing: .08em;
-    text-align: center;
-    text-transform: uppercase;
+    text-align: left;
 }
 
 .mobile-nav-login {
