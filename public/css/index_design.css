@@ -1798,6 +1798,16 @@ html {
    is unchanged.
    ===================================================================== */
 
+/* =====================================================================
+   VOID mobile fixes — consolidated
+   ---------------------------------------------------------------------
+   Everything below goes at the bottom of index_design.css, once. This
+   file replaces every earlier separate mobile-fix snippet — if any of
+   those were already pasted in, remove them first.
+   ===================================================================== */
+
+/* ---------- topbar: hamburger + centered logo + slide-out panel ---------- */
+
 @media (max-width: 640px) {
     .topbar {
         height: 56px;
@@ -1805,9 +1815,6 @@ html {
         justify-content: space-between;
     }
 
-    /* Logo centers independently of the hamburger/icons on either side,
-       rather than sitting in normal flex flow, so it stays visually
-       centered even though the two sides aren't the same width. */
     .topbar .logo {
         position: absolute;
         left: 50%;
@@ -1816,20 +1823,23 @@ html {
     }
 
     .topbar .logo img {
-        height: 28px;
+        height: 42px;
     }
 
     .topbar nav {
         display: none;
     }
 
+    /* Smaller hamburger — was 22x22 with a 5px bar gap, now 16x16 with a
+       tighter 4px gap so it doesn't dominate the header next to the
+       logo and icons. */
     .hamburger-btn {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 5px;
-        width: 22px;
-        height: 22px;
+        gap: 4px;
+        width: 16px;
+        height: 16px;
         padding: 0;
         background: none;
         border: none;
@@ -1840,7 +1850,7 @@ html {
     .hamburger-btn span {
         display: block;
         width: 100%;
-        height: 2px;
+        height: 1.5px;
         background: #111;
     }
 
@@ -1853,9 +1863,6 @@ html {
         width: 19px;
     }
 
-    /* The standalone profile icon moves into the slide-out panel's
-       bottom LOGIN/ACCOUNT row on mobile instead of sitting in the
-       header, matching the reference layout. */
     .nav-icon-user {
         display: none;
     }
@@ -1867,13 +1874,6 @@ html {
         display: none !important;
     }
 }
-
-/* ---------------------------------------------------------------------
-   The panel itself. Not nested in the mobile media query because it
-   needs to exist (off-screen) at all widths above 640px too, in case a
-   window is resized while open — display:none above 641px (rule above)
-   handles that case instead.
-   --------------------------------------------------------------------- */
 
 .mobile-nav {
     position: fixed;
@@ -1939,10 +1939,28 @@ html {
     width: 16px;
 }
 
-/* Prevents the page behind the panel from scrolling while it's open. */
 body.mobile-nav-locked {
     overflow: hidden;
 }
+
+/* ---------- hero: no letterbox gap on mobile ---------- */
+
+@media (max-width: 640px) {
+    .hp {
+        height: auto;
+        min-height: 0;
+    }
+
+    .hp img {
+        width: 100%;
+        max-width: 100%;
+        max-height: none;
+        height: auto;
+    }
+}
+
+/* ---------- cart drawer: fits the screen instead of overflowing it ---------- */
+
 @media (max-width: 480px) {
     .cart {
         width: 88vw;
@@ -1950,8 +1968,30 @@ body.mobile-nav-locked {
         right: -100%;
         padding: 60px 18px 30px;
     }
- 
+
     .cart-active {
         right: 0;
     }
+}
+
+/* ---------- product grid: 2 columns down to the smallest phones ---------- */
+
+@media (max-width: 480px) {
+    .products {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        padding: 0 14px 40px 14px;
+    }
+}
+
+/* ---------- product card image: no more stretching/cropping ---------- */
+
+.product-card img {
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: contain;
+    background: #f2f2f2;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
 }
