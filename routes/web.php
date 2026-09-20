@@ -13,16 +13,18 @@ use App\Http\Controllers\Pos\SaleController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\CustomerAuthController;
+use App\Http\Controllers\Shop\ForgotPasswordController;
 use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Shop\ProfileController;
-use App\Services\OrderService;
+use App\Http\Controllers\Shop\ResetPasswordController;
 use App\Models\Order;
+use App\Services\OrderService;
 use App\Exceptions\InvalidStatusTransitionException;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,12 +33,6 @@ use Illuminate\Support\Facades\DB;
 | The customer-facing shop. Kept at the site root so the existing links and
 | the approved design carry over unchanged.
 */
-Route::get('/fix-orders-constraint', function () {
-    DB::statement('ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check');
-    DB::statement("ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status IN ('pending', 'approved', 'processing', 'completed', 'cancelled'))");
-    
-    return 'Constraint updated successfully!';
-});
 
 Route::name('shop.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -54,16 +50,40 @@ Route::name('shop.')->group(function () {
         Route::delete('/remove', [CartController::class, 'destroy'])->name('remove');
     });
 
+    // Guest Customer Routes (Login, Register, Forgot Password, Reset Password)
     Route::middleware('guest:customer')->group(function () {
         Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.attempt');
         Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
         Route::post('/register', [CustomerAuthController::class, 'register'])->name('register.attempt');
+
+        Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+        Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+        Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+        Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
     });
 
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
 
+    // Authenticated Customer Routes (Account, Checkout & Email Verification)
     Route::middleware('auth:customer')->prefix('shop')->group(function () {
+        
+        // Email Verification Routes
+        Route::get('/email/verify', function () {
+            return view('shop.auth.verify-email');
+        })->name('verification.notice');
+
+        Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+            $request->fulfill();
+            return redirect()->route('shop.account')->with('status', 'Email verified successfully!');
+        })->middleware(['signed'])->name('verification.verify');
+
+        Route::post('/email/verification-notification', function (Request $request) {
+            $request->user('customer')->sendEmailVerificationNotification();
+            return back()->with('status', 'Verification link sent!');
+        })->middleware(['throttle:6,1'])->name('verification.send');
+
+        // Core Customer Account & Checkout Routes
         Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
@@ -73,6 +93,7 @@ Route::name('shop.')->group(function () {
         Route::patch('/account/addresses/{address}', [ProfileController::class, 'updateAddress'])->name('account.addresses.update');
         Route::delete('/account/addresses/{address}', [ProfileController::class, 'destroyAddress'])->name('account.addresses.destroy');
         Route::get('/account/orders/{order:order_ref}', [ProfileController::class, 'showOrder'])->name('account.order');
+        
         Route::post('/account/orders/{order:order_ref}/cancellation', function (Request $request, Order $order, OrderService $orders): RedirectResponse {
             abort_unless($order->customer_id === $request->user('customer')->id, 404);
             $data = $request->validate([

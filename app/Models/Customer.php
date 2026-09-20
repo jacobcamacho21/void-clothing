@@ -3,24 +3,27 @@
 namespace App\Models;
 
 use Database\Factories\CustomerFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 /**
  * A storefront shopper. Authenticated through the `customer` guard, which is
  * kept separate from the staff guard.
  */
-class Customer extends Authenticatable
+class Customer extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<CustomerFactory> */
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'username',
         'email',
         'password',
         'terms_accepted_at',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -33,6 +36,7 @@ class Customer extends Authenticatable
         return [
             'password' => 'hashed',
             'terms_accepted_at' => 'datetime',
+            'email_verified_at' => 'datetime',
         ];
     }
 
