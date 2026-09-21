@@ -722,34 +722,49 @@ header {
 .mobile-nav {
     position: fixed !important;
     top: 0 !important;
-    bottom: 0 !important; /* CRITICAL FIX: Forces element to stretch */
     left: 0 !important;
     width: 82vw;
     max-width: 340px;
-    height: 100% !important; /* Fallback for older Safari */
     height: 100dvh !important;
+    min-height: 100dvh !important;
     z-index: 10000 !important;
+
     background: #ffffff !important;
+
     display: flex;
     flex-direction: column;
-    transform: translateX(-100%);
+
+    transform: translate3d(-100%, 0, 0);
     transition: transform 0.3s cubic-bezier(.77, 0, .18, 1);
+
     overflow-y: auto !important;
+    overflow-x: hidden !important;
+
     overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch;
 }
 
 .mobile-nav.is-open {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
 }
 
 .mobile-nav-backdrop {
     position: fixed !important;
-    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+
+    width: 100vw !important;
+    height: 100dvh !important;
+
     z-index: 9999 !important;
+
     background: rgba(0, 0, 0, 0.4) !important;
+
     opacity: 0;
     pointer-events: none;
+
     transition: opacity 0.3s ease;
 }
 
