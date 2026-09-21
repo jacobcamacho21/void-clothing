@@ -8,7 +8,8 @@
     <form method="POST" action="{{ route('shop.login.attempt') }}">
         @csrf
 
-        <label for="username" class="visually-hidden">Username</label>
+
+        <label for="email" class="visually-hidden">Email</label>
         <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required autofocus>
 
         <label for="password" class="visually-hidden">Password</label>
