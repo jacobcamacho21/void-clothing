@@ -27,15 +27,15 @@ class CustomerAuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials =$request->validate([
-            'username' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        $throttleKey = 'shop|'.mb_strtolower($credentials['username']).'\vert{}'.$request->ip();
+        $throttleKey = 'shop|'.mb_strtolower($credentials['email']).'\vert{}'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_ATTEMPTS)) {
             throw ValidationException::withMessages([
-                'username' => sprintf(
+                'email' => sprintf(
                     'Too many sign-in attempts. Try again in %d seconds.',
                     RateLimiter::availableIn($throttleKey)
                 ),
@@ -46,7 +46,7 @@ class CustomerAuthController extends Controller
             RateLimiter::hit($throttleKey, self::DECAY_SECONDS);
 
             throw ValidationException::withMessages([
-                'username' => 'Invalid username or password.',
+                'email' => 'Invalid email or password.',
             ]);
         }
 

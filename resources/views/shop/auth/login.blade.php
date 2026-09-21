@@ -9,8 +9,7 @@
         @csrf
 
         <label for="username" class="visually-hidden">Username</label>
-        <input type="text" id="username" name="username" placeholder="Username"
-               value="{{ old('username') }}" required autofocus autocomplete="username">
+        <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required autofocus>
 
         <label for="password" class="visually-hidden">Password</label>
         <input type="password" id="password" name="password" placeholder="Password"

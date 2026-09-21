@@ -54,7 +54,8 @@ Route::middleware('auth:customer')->group(function () {
 | The customer-facing shop. Kept at the site root so the existing links and
 | the approved design carry over unchanged.
 */
-
+Route::get('/reset-password/{token}', [App\Http\Controllers\Shop\ResetPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
 Route::name('shop.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/products', [ProductController::class, 'index'])->name('products');
