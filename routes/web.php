@@ -49,13 +49,23 @@ Route::middleware('auth:customer')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Global Password Reset Routes
+|--------------------------------------------------------------------------
+| Must exist outside `Route::name('shop.')` so Laravel's password broker 
+| can find `password.reset` directly without a prefix.
+*/
+Route::middleware('guest:customer')->group(function () {
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Storefront
 |--------------------------------------------------------------------------
 | The customer-facing shop. Kept at the site root so the existing links and
 | the approved design carry over unchanged.
 */
-Route::get('/reset-password/{token}', [App\Http\Controllers\Shop\ResetPasswordController::class, 'showResetForm'])
-    ->name('password.reset');
 Route::name('shop.')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/products', [ProductController::class, 'index'])->name('products');
@@ -72,7 +82,7 @@ Route::name('shop.')->group(function () {
         Route::delete('/remove', [CartController::class, 'destroy'])->name('remove');
     });
 
-    // Guest Customer Routes (Login, Register, Forgot Password, Reset Password)
+    // Guest Customer Routes (Login, Register, Forgot Password)
     Route::middleware('guest:customer')->group(function () {
         Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.attempt');
@@ -81,8 +91,6 @@ Route::name('shop.')->group(function () {
 
         Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
         Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-        Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-        Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
     });
 
     Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
