@@ -1,10 +1,3 @@
-/**
- * Storefront cart — slide-out panel, add/remove, quantity steppers.
- *
- * Same interaction as before; prices and stock now come from the server on
- * every response instead of being hard-coded in the browser, so the panel can
- * never disagree with the catalog.
- */
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
@@ -22,7 +15,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const variantSelect = document.querySelector('[data-variant-select]');
     const feedback = document.getElementById('add-to-cart-feedback');
 
-    // Create dynamic backdrop overlay for cart if not present
+    let cartScrollY = 0;
+
+    // Create backdrop overlay for cart
     let cartBackdrop = document.querySelector('.cart-backdrop');
     if (!cartBackdrop && cartPanel) {
         cartBackdrop = document.createElement('div');
@@ -35,17 +30,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function showCart() {
-        if (!cartPanel) return;
+        if (!cartPanel || cartPanel.classList.contains('cart-active')) return;
+
+        cartScrollY = window.scrollY || window.pageYOffset;
+        document.body.style.top = '-' + cartScrollY + 'px';
+        document.body.classList.add('drawer-open');
+
         cartPanel.classList.add('cart-active');
-        document.body.classList.add('cart-open');
         if (cartBackdrop) cartBackdrop.classList.add('is-open');
     }
 
     function hideCart() {
-        if (!cartPanel) return;
+        if (!cartPanel || !cartPanel.classList.contains('cart-active')) return;
+
         cartPanel.classList.remove('cart-active');
-        document.body.classList.remove('cart-open');
         if (cartBackdrop) cartBackdrop.classList.remove('is-open');
+
+        document.body.classList.remove('drawer-open');
+        document.body.style.top = '';
+        window.scrollTo(0, cartScrollY);
     }
 
     function peso(value) {
@@ -249,6 +252,5 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Prime the panel so the total is right before it is ever opened.
     refresh();
 });

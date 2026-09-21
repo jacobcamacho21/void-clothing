@@ -54,29 +54,28 @@
         var closeBtn = document.getElementById('mobile-nav-close');
         var panel = document.getElementById('mobile-nav');
         var backdrop = document.getElementById('mobile-nav-backdrop');
-        var scrollY = 0;
+        var navScrollY = 0;
 
         if (!btn || !closeBtn || !panel || !backdrop) return;
 
         function openNav() {
-            // overflow:hidden alone does not stop touch-scroll on iOS —
-            // pinning the body to a fixed position is what actually
-            // works, so we record the scroll offset to restore it later.
-            scrollY = window.scrollY;
-            document.body.style.top = '-' + scrollY + 'px';
+            if (panel.classList.contains('is-open')) return;
+            navScrollY = window.scrollY || window.pageYOffset;
+            document.body.style.top = '-' + navScrollY + 'px';
+            document.body.classList.add('mobile-nav-locked');
             panel.classList.add('is-open');
             backdrop.classList.add('is-open');
             btn.setAttribute('aria-expanded', 'true');
-            document.body.classList.add('mobile-nav-locked');
         }
 
         function closeNav() {
+            if (!panel.classList.contains('is-open')) return;
             panel.classList.remove('is-open');
             backdrop.classList.remove('is-open');
             btn.setAttribute('aria-expanded', 'false');
             document.body.classList.remove('mobile-nav-locked');
             document.body.style.top = '';
-            window.scrollTo(0, scrollY);
+            window.scrollTo(0, navScrollY);
         }
 
         btn.addEventListener('click', openNav);
