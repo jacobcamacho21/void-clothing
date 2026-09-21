@@ -121,6 +121,11 @@ body.shop-app {
     box-shadow: var(--void-shadow-card);
     padding: var(--shop-card-pad);
     margin-bottom: 20px;
+    /* A flex/grid ancestor's default min-width:auto can stop a card
+       from shrinking below its content's natural width even though the
+       text itself could wrap — this makes sure it always can. */
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .shop-card:last-child { margin-bottom: 0; }
@@ -175,6 +180,12 @@ body.shop-app {
     font-size: 14px;
     line-height: 1.6;
     color: var(--void-text-muted);
+    /* Nothing here previously stopped a long address from pushing the
+       card wider than the screen — on mobile that overflow just got
+       silently clipped by index_design.css's global
+       `html { overflow-x: hidden }` instead of wrapping. */
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
     transition: border-color var(--void-speed) var(--void-ease),
                 background var(--void-speed) var(--void-ease);
 }

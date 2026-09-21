@@ -1892,6 +1892,11 @@ html {
 .mobile-nav-links {
     display: flex;
     flex-direction: column;
+    /* The bare `nav { gap: 20px }` rule elsewhere in this file applies
+       to any <nav> element, this one included, and was stacking on top
+       of each link's own padding — that's what produced the oversized
+       gaps between HOME/ALL PRODUCTS/APPAREL. Explicitly zeroed here. */
+    gap: 0;
     padding: 8px 0;
 }
 
