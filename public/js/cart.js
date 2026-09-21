@@ -22,6 +22,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const variantSelect = document.querySelector('[data-variant-select]');
     const feedback = document.getElementById('add-to-cart-feedback');
 
+    // Create dynamic backdrop overlay for cart if not present
+    let cartBackdrop = document.querySelector('.cart-backdrop');
+    if (!cartBackdrop && cartPanel) {
+        cartBackdrop = document.createElement('div');
+        cartBackdrop.className = 'cart-backdrop';
+        document.body.appendChild(cartBackdrop);
+
+        cartBackdrop.addEventListener('click', function () {
+            hideCart();
+        });
+    }
+
+    function showCart() {
+        if (!cartPanel) return;
+        cartPanel.classList.add('cart-active');
+        document.body.classList.add('cart-open');
+        if (cartBackdrop) cartBackdrop.classList.add('is-open');
+    }
+
+    function hideCart() {
+        if (!cartPanel) return;
+        cartPanel.classList.remove('cart-active');
+        document.body.classList.remove('cart-open');
+        if (cartBackdrop) cartBackdrop.classList.remove('is-open');
+    }
+
     function peso(value) {
         return CFG.currency + (Number(value) || 0).toLocaleString('en-PH', {
             minimumFractionDigits: 2,
@@ -101,8 +127,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let cachedTrashIcon = null;
     function trashIcon() {
         if (cachedTrashIcon === null) {
-            // Derived from the cart panel's own close icon so the path stays
-            // correct whatever directory the page is served from.
             const close = document.getElementById('cart-close');
             cachedTrashIcon = close
                 ? close.getAttribute('src').replace(/close\.png$/, 'trash.png')
@@ -139,14 +163,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (openCart) {
         openCart.addEventListener('click', function (event) {
             event.preventDefault();
-            cartPanel.classList.add('cart-active');
+            showCart();
             refresh();
         });
     }
 
     if (closeCart) {
         closeCart.addEventListener('click', function () {
-            cartPanel.classList.remove('cart-active');
+            hideCart();
         });
     }
 
@@ -170,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (data?.success) {
                     paint(data);
-                    cartPanel.classList.add('cart-active');
+                    showCart();
                     showFeedback('Added to your cart.', false);
                 } else {
                     showFeedback(data?.error ?? 'Could not add that item.', true);
