@@ -59,14 +59,14 @@ body.mobile-nav-locked {
     }
     100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: none; /* CRITICAL FIX: Removes the fixed-position trap */
     }
 }
 
 @keyframes pageExit {
     0% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: none; /* CRITICAL FIX: Removes the fixed-position trap */
     }
     100% {
         opacity: 0;
@@ -560,9 +560,11 @@ header {
 .cart {
     position: fixed !important;
     top: 0 !important;
+    bottom: 0 !important; /* CRITICAL FIX: Forces element to stretch */
     right: 0 !important;
     width: 400px;
     max-width: 88vw;
+    height: 100% !important; /* Fallback for older Safari */
     height: 100dvh !important;
     background: #fff !important;
     box-shadow: -2px 0 8px rgba(0,0,0,0.15);
@@ -720,9 +722,11 @@ header {
 .mobile-nav {
     position: fixed !important;
     top: 0 !important;
+    bottom: 0 !important; /* CRITICAL FIX: Forces element to stretch */
     left: 0 !important;
     width: 82vw;
     max-width: 340px;
+    height: 100% !important; /* Fallback for older Safari */
     height: 100dvh !important;
     z-index: 10000 !important;
     background: #ffffff !important;
