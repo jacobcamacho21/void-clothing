@@ -10,7 +10,7 @@
 <body class="@yield('body-class')">
     @include('shop.partials.topbar')
 
-    {{-- Mobile Navigation Drawer (Rendered at Body Root level to avoid topbar z-index traps) --}}
+    {{-- Mobile Navigation Drawer --}}
     <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
     <div class="mobile-nav" id="mobile-nav">
         <div class="mobile-nav-head">
@@ -43,6 +43,43 @@
 
     <script src="{{ asset('js/transition.js') }}"></script>
     @include('partials.shop-scripts')
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var btn = document.getElementById('mobile-nav-btn');
+            var closeBtn = document.getElementById('mobile-nav-close');
+            var panel = document.getElementById('mobile-nav');
+            var backdrop = document.getElementById('mobile-nav-backdrop');
+
+            if (!btn || !closeBtn || !panel || !backdrop) return;
+
+            function openNav() {
+                if (panel.classList.contains('is-open')) return;
+                document.documentElement.classList.add('mobile-nav-locked');
+                document.body.classList.add('mobile-nav-locked');
+                panel.classList.add('is-open');
+                backdrop.classList.add('is-open');
+                btn.setAttribute('aria-expanded', 'true');
+            }
+
+            function closeNav() {
+                if (!panel.classList.contains('is-open')) return;
+                panel.classList.remove('is-open');
+                backdrop.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+                document.documentElement.classList.remove('mobile-nav-locked');
+                document.body.classList.remove('mobile-nav-locked');
+            }
+
+            btn.addEventListener('click', openNav);
+            closeBtn.addEventListener('click', closeNav);
+            backdrop.addEventListener('click', closeNav);
+
+            panel.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', closeNav);
+            });
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>
