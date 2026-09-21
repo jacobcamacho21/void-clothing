@@ -41,11 +41,17 @@ body.orders-page {
     display: flex;
 }
 
-body.mobile-nav-locked,
-body.cart-open {
+/* 
+   Clean lock state: Prevents background scroll without breaking sticky positioning 
+   or creating fixed-top whitespace blocks on mobile viewports.
+*/
+html.cart-open,
+html.mobile-nav-locked,
+body.cart-open,
+body.mobile-nav-locked {
     overflow: hidden !important;
     touch-action: none !important;
-    height: 100vh !important;
+    overscroll-behavior: none !important;
 }
 
 /* Page Animations */
@@ -559,9 +565,10 @@ header {
     top: 0 !important;
     right: 0 !important;
     width: 400px;
+    max-width: 88vw;
     height: 100dvh !important;
     background: #fff !important;
-    box-shadow: -2px 0 8px rgba(0,0,0,0.08);
+    box-shadow: -2px 0 8px rgba(0,0,0,0.15);
     z-index: 10000 !important;
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(.77,0,.18,1);
@@ -569,6 +576,7 @@ header {
     flex-direction: column;
     padding: 65px 20px 40px;
     overflow-y: auto !important;
+    overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -1582,6 +1590,7 @@ input[type="submit"]:active,
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(.77, 0, .18, 1);
     overflow-y: auto !important;
+    overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -1916,97 +1925,4 @@ input[type="submit"]:active,
         text-align: center;
         color: #666;
     }
-}
-
-/* =====================================================================
-   DRAWER & SCROLL LOCK FIXES (CART & HAMBURGER)
-   ===================================================================== */
-
-/* Body locking rule when any drawer/modal is active */
-body.drawer-open,
-body.mobile-nav-locked {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    overflow: hidden !important;
-}
-
-/* Cart Drawer Viewport Pinning & Independent Scroll */
-.cart {
-    position: fixed !important;
-    top: 0 !important;
-    right: 0 !important;
-    width: 400px;
-    max-width: 88vw;
-    height: 100dvh !important;
-    background: #ffffff !important;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
-    z-index: 10000 !important;
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(.77, 0, .18, 1);
-    display: flex;
-    flex-direction: column;
-    padding: 65px 20px 40px;
-    overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch;
-}
-
-.cart.cart-active {
-    transform: translateX(0);
-}
-
-/* Cart Backdrop Overlay */
-.cart-backdrop {
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 9999 !important;
-    background: rgba(0, 0, 0, 0.4) !important;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.cart-backdrop.is-open {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-}
-
-/* Mobile Nav Drawer Pinning & Independent Scroll */
-.mobile-nav {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 82vw;
-    max-width: 340px;
-    height: 100dvh !important;
-    z-index: 10000 !important;
-    background: #ffffff !important;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(.77, 0, .18, 1);
-    overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-    -webkit-overflow-scrolling: touch;
-}
-
-.mobile-nav.is-open {
-    transform: translateX(0);
-}
-
-.mobile-nav-backdrop {
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 9999 !important;
-    background: rgba(0, 0, 0, 0.4) !important;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.mobile-nav-backdrop.is-open {
-    opacity: 1 !important;
-    pointer-events: auto !important;
 }
