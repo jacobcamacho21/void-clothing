@@ -18,6 +18,12 @@ body {
     animation: pageEnter 0.28s ease both;
 }
 
+/* The storefront header is a viewport control layer. Reserve its height so
+   fixing it does not cover the first row of page content. */
+.shop-layout {
+    padding-top: 64px;
+}
+
 body.page-is-leaving {
     animation: pageExit 0.22s ease both;
     pointer-events: none;
@@ -55,22 +61,18 @@ body.mobile-nav-locked {
 @keyframes pageEnter {
     0% {
         opacity: 0;
-        transform: translateY(10px) scale(0.985);
     }
     100% {
         opacity: 1;
-        transform: none; /* CRITICAL FIX: Removes the fixed-position trap */
     }
 }
 
 @keyframes pageExit {
     0% {
         opacity: 1;
-        transform: none; /* CRITICAL FIX: Removes the fixed-position trap */
     }
     100% {
         opacity: 0;
-        transform: translateY(-6px) scale(0.985);
     }
 }
 
@@ -137,8 +139,11 @@ header {
     padding: 0 16px;
     font-weight: bold;
     border-bottom: 1px solid #ddd;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
     z-index: 999;        
     background: white;
 }
@@ -1895,6 +1900,10 @@ input[type="submit"]:active,
 }
 
 @media (max-width: 640px) {
+    .shop-layout {
+        padding-top: 54px;
+    }
+
     .topbar {
         height: 54px;
         padding: 0 16px;

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/shop-pages.css') }}?v={{ filemtime(public_path('css/shop-pages.css')) }}">
     @stack('head')
 </head>
-<body class="@yield('body-class')">
+<body class="shop-layout @yield('body-class')">
     @include('shop.partials.topbar')
 
     {{-- Mobile Navigation Drawer --}}
