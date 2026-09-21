@@ -55,8 +55,13 @@ Route::middleware('auth:customer')->group(function () {
 | can find `password.reset` directly without a prefix.
 */
 Route::middleware('guest:customer')->group(function () {
+    // Global named routes (used by Laravel Core Password Broker)
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+    // Shop-prefixed aliases (used by existing shop forms/emails)
+    Route::get('/shop/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('shop.password.reset');
+    Route::post('/shop/reset-password', [ResetPasswordController::class, 'reset'])->name('shop.password.update');
 });
 
 /*
