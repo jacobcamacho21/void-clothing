@@ -26,6 +26,11 @@
     </div>
 </div>
 
+{{-- Mobile-only slide-out drawer. Hidden above 640px by CSS; the
+     hamburger button above is the only way to open it. The backdrop
+     dims the page behind it and closes the drawer when tapped. --}}
+<div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+
 <div class="mobile-nav" id="mobile-nav">
     <div class="mobile-nav-head">
         <button type="button" class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">&times;</button>
@@ -48,21 +53,36 @@
         var btn = document.getElementById('mobile-nav-btn');
         var closeBtn = document.getElementById('mobile-nav-close');
         var panel = document.getElementById('mobile-nav');
-        if (!btn || !closeBtn || !panel) return;
+        var backdrop = document.getElementById('mobile-nav-backdrop');
+        var scrollY = 0;
+
+        if (!btn || !closeBtn || !panel || !backdrop) return;
 
         function openNav() {
+            // overflow:hidden alone does not stop touch-scroll on iOS —
+            // pinning the body to a fixed position is what actually
+            // works, so we record the scroll offset to restore it later.
+            scrollY = window.scrollY;
+            document.body.style.top = '-' + scrollY + 'px';
             panel.classList.add('is-open');
+            backdrop.classList.add('is-open');
             btn.setAttribute('aria-expanded', 'true');
             document.body.classList.add('mobile-nav-locked');
         }
+
         function closeNav() {
             panel.classList.remove('is-open');
+            backdrop.classList.remove('is-open');
             btn.setAttribute('aria-expanded', 'false');
             document.body.classList.remove('mobile-nav-locked');
+            document.body.style.top = '';
+            window.scrollTo(0, scrollY);
         }
 
         btn.addEventListener('click', openNav);
         closeBtn.addEventListener('click', closeNav);
+        backdrop.addEventListener('click', closeNav);
+
         panel.querySelectorAll('a').forEach(function (link) {
             link.addEventListener('click', closeNav);
         });

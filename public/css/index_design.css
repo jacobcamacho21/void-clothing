@@ -1747,57 +1747,6 @@ html {
     }
  
     /* Desktop centers this with left: 50%, which is exactly what put
-       HOME on top of the logo on a narrow screen. On mobile it drops
-       out of absolute positioning and becomes a plain wrapping row
-       under the logo and icons instead. */
-    .topbar nav {
-        position: static;
-        left: auto;
-        transform: none;
-        order: 3;
-        width: 100%;
-        justify-content: center;
-        gap: 14px;
-        flex-wrap: wrap;
-    }
- 
-    .topbar nav a {
-        font-size: 11px;
-        padding: 0 4px;
-    }
- 
-    .nav-icons {
-        gap: 16px;
-    }
- 
-    .nav-icons img {
-        width: 19px;
-    }
-    .hp {
-        height: auto;
-        min-height: 0;
-    }
- 
-    .hp img {
-        width: 100%;
-        max-width: 100%;
-        max-height: none;
-        height: auto;
-    }
-}
-
-/* =====================================================================
-   Mobile: hamburger nav + slide-out panel
-   ---------------------------------------------------------------------
-   Replaces the earlier "wrap nav under logo" mobile fix. Below 640px the
-   desktop nav is hidden entirely, a hamburger button takes its place on
-   the left, and .mobile-nav (added in topbar.blade.php) becomes the real
-   navigation — a full-screen white panel that slides in from the left,
-   toggled by mobile-nav.js's open/close handlers via the .is-open class.
-   Above 640px the hamburger and panel are hidden and the desktop topbar
-   is unchanged.
-   ===================================================================== */
-
 /* =====================================================================
    VOID mobile fixes — consolidated
    ---------------------------------------------------------------------
@@ -1886,11 +1835,15 @@ html {
 }
 
 
+/* Narrower drawer, not full-screen: leaves part of the page visible
+   behind it. Width matches the cart drawer's own sizing so the two
+   panels feel like the same component. */
 .mobile-nav {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
+    width: 82vw;
+    max-width: 340px;
     height: 100dvh;
     z-index: 1200;
     background: #fff;
@@ -1900,9 +1853,25 @@ html {
     transition: transform 0.3s cubic-bezier(.77, 0, .18, 1);
 }
 
-
 .mobile-nav.is-open {
     transform: translateX(0);
+}
+
+/* Dimmed backdrop behind the drawer, tap to close. Added in
+   topbar.blade.php alongside the panel. */
+.mobile-nav-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1190;
+    background: rgba(0, 0, 0, .4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-nav-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .mobile-nav-head {
@@ -1940,7 +1909,7 @@ html {
     margin-top: auto;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 8px;
     padding: 20px 24px;
     border-top: 1px solid #eee;
@@ -1948,15 +1917,20 @@ html {
     color: #111;
     font-size: 12px;
     font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
 }
 
 .mobile-nav-login img {
     width: 16px;
 }
 
+/* overflow: hidden alone does not stop touch-scroll on iOS Safari — the
+   page behind the panel kept scrolling, which is what was bleeding
+   through underneath it. Pinning the body in place is what actually
+   works; the matching scrollY restore lives in topbar.blade.php's
+   script. */
 body.mobile-nav-locked {
+    position: fixed;
+    width: 100%;
     overflow: hidden;
 }
 
