@@ -26,25 +26,6 @@
     </div>
 </div>
 
-<div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
-
-<div class="mobile-nav" id="mobile-nav">
-    <div class="mobile-nav-head">
-        <button type="button" class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">&times;</button>
-    </div>
-
-    <nav class="mobile-nav-links">
-        <a href="{{ route('shop.home') }}">HOME</a>
-        <a href="{{ route('shop.products') }}">ALL PRODUCTS</a>
-        <a href="{{ route('shop.apparel') }}">APPAREL</a>
-    </nav>
-
-    <a href="{{ auth('customer')->check() ? route('shop.account') : route('shop.login') }}" class="mobile-nav-login">
-        <img src="{{ asset('images/icons/User.png') }}" alt="">
-        {{ auth('customer')->check() ? 'ACCOUNT' : 'LOGIN' }}
-    </a>
-</div>
-
 <script>
     (function () {
         var btn = document.getElementById('mobile-nav-btn');
