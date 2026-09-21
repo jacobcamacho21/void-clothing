@@ -15,9 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const variantSelect = document.querySelector('[data-variant-select]');
     const feedback = document.getElementById('add-to-cart-feedback');
 
-    let cartScrollY = 0;
-
-    // Create backdrop overlay for cart
+    // Create backdrop overlay for cart if it doesn't exist
     let cartBackdrop = document.querySelector('.cart-backdrop');
     if (!cartBackdrop && cartPanel) {
         cartBackdrop = document.createElement('div');
@@ -32,9 +30,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function showCart() {
         if (!cartPanel || cartPanel.classList.contains('cart-active')) return;
 
-        cartScrollY = window.scrollY || window.pageYOffset;
-        document.body.style.top = '-' + cartScrollY + 'px';
-        document.body.classList.add('drawer-open');
+        document.documentElement.classList.add('cart-open');
+        document.body.classList.add('cart-open');
 
         cartPanel.classList.add('cart-active');
         if (cartBackdrop) cartBackdrop.classList.add('is-open');
@@ -46,9 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
         cartPanel.classList.remove('cart-active');
         if (cartBackdrop) cartBackdrop.classList.remove('is-open');
 
-        document.body.classList.remove('drawer-open');
-        document.body.style.top = '';
-        window.scrollTo(0, cartScrollY);
+        document.documentElement.classList.remove('cart-open');
+        document.body.classList.remove('cart-open');
     }
 
     function peso(value) {
