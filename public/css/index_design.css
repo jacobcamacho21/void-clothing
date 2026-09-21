@@ -2,6 +2,7 @@
 .profile-container, .profile-left-col, .profile-orders-col {
     box-sizing: border-box;
 }
+
 .profile-container {
     display: flex;
     flex-direction: row;
@@ -11,6 +12,7 @@
     width: 100%;
     gap: 48px;
 }
+
 .profile-left-col {
     width: 400px;
     min-width: 340px;
@@ -20,6 +22,7 @@
     gap: 32px;
     align-items: stretch;
 }
+
 .profile-orders-col {
     flex: 1 1 0;
     min-width: 340px;
@@ -29,46 +32,29 @@
     gap: 18px;
     align-items: stretch;
 }
+
+/* Mobile Overrides (Only active under 900px) */
 @media (max-width: 900px) {
     .profile-container {
         flex-direction: column;
         gap: 24px;
         width: 100%;
     }
-    .profile-left-col, .profile-orders-col {
-        max-width: 100vw;
-        width: 100vw;
+    .profile-left-col, 
+    .profile-orders-col {
+        max-width: 100%;
+        width: 100%;
         min-width: 0;
+        height: auto;
     }
 }
-    flex-direction: column !important;
-    gap: 32px !important;
-    align-items: stretch !important;
-    height: 100vh !important;
-}
-.profile-orders-col {
-    flex: 1 1 0 !important;
-    min-width: 340px !important;
-    max-width: 1000px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 18px !important;
-    align-items: stretch !important;
-    height: 100vh !important;
-}
-@media (max-width: 900px) {
-    .profile-container {
-        flex-direction: column !important;
-        gap: 24px !important;
-        width: 100vw !important;
-    }
-    .profile-left-col, .profile-orders-col {
+.profile-left-col, .profile-orders-col {
         max-width: 100vw !important;
         width: 100vw !important;
         min-width: 0 !important;
         height: auto !important;
-    }
 }
+
 .cart-box .v-cart-remove {
     width: 18px !important;
     height: 18px !important;
@@ -1892,11 +1878,6 @@ html {
 .mobile-nav-links {
     display: flex;
     flex-direction: column;
-    /* The bare `nav { gap: 20px }` rule elsewhere in this file applies
-       to any <nav> element, this one included, and was stacking on top
-       of each link's own padding — that's what produced the oversized
-       gaps between HOME/ALL PRODUCTS/APPAREL. Explicitly zeroed here. */
-    gap: 0;
     padding: 8px 0;
 }
 
