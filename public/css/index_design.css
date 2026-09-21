@@ -1886,3 +1886,27 @@ input[type="submit"]:active,
         gap: 12px !important;
     }
 }
+@media (max-width: 900px) {
+    /* Set up flex ordering for the mobile column stack */
+    .account-grid {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* Keep details & addresses at top (order: 1), push orders section under them (order: 2) */
+    .account-col:first-child {
+        order: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .account-col:last-child {
+        order: 2 !important;
+    }
+
+    /* Target the logout form inside the first column and force it to the very bottom (order: 99) */
+    .account-col:first-child form[action*="logout"] {
+        order: 99 !important;
+        margin-top: 12px !important;
+    }
+}
