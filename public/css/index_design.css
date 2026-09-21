@@ -41,10 +41,11 @@ body.orders-page {
     display: flex;
 }
 
-body.mobile-nav-locked {
-    position: fixed;
-    width: 100%;
-    overflow: hidden;
+body.mobile-nav-locked,
+body.cart-open {
+    overflow: hidden !important;
+    touch-action: none !important;
+    height: 100vh !important;
 }
 
 /* Page Animations */
@@ -551,27 +552,43 @@ header {
 }
 
 /* =====================================================================
-   CART DRAWER
+   CART DRAWER & BACKDROP OVERLAY
    ===================================================================== */
 .cart {
-    position: fixed;
-    top: 0;
-    right: 0;
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
     width: 400px;
-    height: 100vh;
-    background: #fff;
+    height: 100dvh !important;
+    background: #fff !important;
     box-shadow: -2px 0 8px rgba(0,0,0,0.08);
-    z-index: 9999;
+    z-index: 10000 !important;
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(.77,0,.18,1);
     display: flex;
     flex-direction: column;
     padding: 65px 20px 40px;
-    overflow-y: auto;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 .cart.cart-active {
     transform: translateX(0);
+}
+
+.cart-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.cart-backdrop.is-open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 .cart-title {
@@ -1552,18 +1569,20 @@ input[type="submit"]:active,
 
 /* Mobile Slide-Out Nav Structural Elements */
 .mobile-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 82vw;
     max-width: 340px;
-    height: 100dvh;
-    z-index: 1200;
+    height: 100dvh !important;
+    z-index: 10000 !important;
     background: #fff;
     display: flex;
     flex-direction: column;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(.77, 0, .18, 1);
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 .mobile-nav.is-open {
@@ -1571,18 +1590,18 @@ input[type="submit"]:active,
 }
 
 .mobile-nav-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 1190;
-    background: rgba(0, 0, 0, .4);
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    background: rgba(0, 0, 0, .4) !important;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
 }
 
 .mobile-nav-backdrop.is-open {
-    opacity: 1;
-    pointer-events: auto;
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 .mobile-nav-head {
@@ -1685,6 +1704,71 @@ input[type="submit"]:active,
 
     .orders-modal-body {
         grid-template-columns: 1fr;
+    }
+
+    /* Stack grid into a clean single column */
+    .account-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    .account-col {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* Keep details & addresses at top (order: 1), push orders section under them (order: 2) */
+    .account-col:first-child {
+        order: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .account-col:last-child {
+        order: 2 !important;
+    }
+
+    /* Target the logout form inside the first column and force it to the very bottom (order: 99) */
+    .account-col:first-child form[action*="logout"] {
+        order: 99 !important;
+        margin-top: 12px !important;
+    }
+
+    /* Keep cards contained within screen bounds */
+    .shop-card, 
+    .shop-tile {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    /* Wrap long data entries like emails and addresses */
+    .shop-datalist dd,
+    .shop-tile div {
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    /* Responsive modal adjustments */
+    .shop-modal-card {
+        width: calc(100vw - 32px) !important;
+        max-width: 440px !important;
+        padding: 20px !important;
+        margin: 20px auto !important;
+        box-sizing: border-box !important;
+    }
+
+    .shop-field-row {
+        flex-direction: column !important;
+        gap: 12px !important;
     }
 }
 
@@ -1831,82 +1915,5 @@ input[type="submit"]:active,
         font-size: 13px;
         text-align: center;
         color: #666;
-    }
-}
-
-/* =====================================================================
-   MOBILE ACCOUNT PAGE FIXES
-   ===================================================================== */
-@media (max-width: 900px) {
-    /* Stack grid into a clean single column */
-    .account-grid {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 20px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 16px !important;
-        box-sizing: border-box !important;
-    }
-
-    .account-col {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-    }
-
-    /* Keep cards contained within screen bounds */
-    .shop-card, 
-    .shop-tile {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-    }
-
-    /* Wrap long data entries like emails and addresses */
-    .shop-datalist dd,
-    .shop-tile div {
-        word-break: break-word !important;
-        overflow-wrap: anywhere !important;
-    }
-
-    /* Responsive modal adjustments */
-    .shop-modal-card {
-        width: calc(100vw - 32px) !important;
-        max-width: 440px !important;
-        padding: 20px !important;
-        margin: 20px auto !important;
-        box-sizing: border-box !important;
-    }
-
-    .shop-field-row {
-        flex-direction: column !important;
-        gap: 12px !important;
-    }
-}
-@media (max-width: 900px) {
-    /* Set up flex ordering for the mobile column stack */
-    .account-grid {
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    /* Keep details & addresses at top (order: 1), push orders section under them (order: 2) */
-    .account-col:first-child {
-        order: 1 !important;
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    .account-col:last-child {
-        order: 2 !important;
-    }
-
-    /* Target the logout form inside the first column and force it to the very bottom (order: 99) */
-    .account-col:first-child form[action*="logout"] {
-        order: 99 !important;
-        margin-top: 12px !important;
     }
 }
