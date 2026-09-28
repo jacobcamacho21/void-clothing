@@ -77,6 +77,7 @@ Route::name('shop.')->group(function () {
     Route::get('/apparel', [ProductController::class, 'apparel'])->name('apparel');
     Route::get('/search', [ProductController::class, 'search'])->name('search');
     Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('product');
+    Route::view('/about', 'shop.about')->name('about');
     Route::view('/terms', 'shop.terms')->name('terms');
 
     // Cart endpoints are called by cart.js and answer with JSON.
