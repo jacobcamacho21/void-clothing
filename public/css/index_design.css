@@ -356,6 +356,10 @@ header {
     flex: none;
 }
 
+.product-gallery .product-image[hidden] {
+    display: none;
+}
+
 .product-gallery-arrow {
     position: absolute;
     top: 50%;
