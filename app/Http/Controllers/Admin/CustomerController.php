@@ -17,13 +17,16 @@ class CustomerController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('q', ''));
+        $searchTerm = mb_strtolower($search);
 
         $customers = Customer::query()
             ->withCount('orders')
             ->with(['addresses' => fn ($query) => $query->latest('id')->limit(1)])
-            ->when($search !== '', fn ($query) => $query->where(function ($inner) use ($search) {
-                $inner->where('username', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+            ->when($searchTerm !== '', fn ($query) => $query->where(function ($inner) use ($searchTerm) {
+                $like = "%{$searchTerm}%";
+
+                $inner->whereRaw('LOWER(username) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(email) LIKE ?', [$like]);
             }))
             ->orderByDesc('id')
             ->paginate(20)

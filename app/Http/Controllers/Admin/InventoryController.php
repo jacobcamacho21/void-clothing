@@ -23,15 +23,19 @@ class InventoryController extends Controller
         $this->authorize('viewAny', Product::class);
 
         $search = trim((string) $request->query('q', ''));
+        $searchTerm = mb_strtolower($search);
 
         $variants = ProductVariant::query()
             ->with('product')
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($inner) use ($search) {
-                    $inner->whereHas('product', fn ($p) => $p->where('name', 'like', "%{$search}%")
-                        ->orWhere('category', 'like', "%{$search}%"))
-                        ->orWhere('size', 'like', "%{$search}%")
-                        ->orWhere('sku', 'like', "%{$search}%");
+            ->when($searchTerm !== '', function ($query) use ($searchTerm) {
+                $like = "%{$searchTerm}%";
+
+                $query->where(function ($inner) use ($like) {
+                    $inner->whereHas('product', fn ($p) => $p
+                        ->whereRaw('LOWER(name) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(category) LIKE ?', [$like]))
+                        ->orWhereRaw('LOWER(size) LIKE ?', [$like])
+                        ->orWhereRaw('LOWER(sku) LIKE ?', [$like]);
                 });
             })
             ->join('products', 'products.id', '=', 'product_variants.product_id')

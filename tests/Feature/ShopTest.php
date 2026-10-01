@@ -61,7 +61,7 @@ class ShopTest extends TestCase
     {
         Product::factory()->create(['name' => 'Evoker', 'slug' => 'evoker']);
 
-        $this->get(route('shop.search', ['q' => 'Temper']))
+        $this->get(route('shop.search', ['q' => 'temper']))
             ->assertOk()
             ->assertSee('Temperance')
             ->assertDontSee('Evoker');

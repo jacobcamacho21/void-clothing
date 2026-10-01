@@ -36,13 +36,16 @@ class ProductController extends Controller
     public function search(Request $request): View
     {
         $term = trim((string) $request->query('q', ''));
+        $searchTerm = mb_strtolower($term);
 
         $products = Product::active()
             ->with('variants')
-            ->when($term !== '', fn ($query) => $query->where(function ($inner) use ($term) {
-                $inner->where('name', 'like', "%{$term}%")
-                    ->orWhere('description', 'like', "%{$term}%")
-                    ->orWhere('category', 'like', "%{$term}%");
+            ->when($searchTerm !== '', fn ($query) => $query->where(function ($inner) use ($searchTerm) {
+                $like = "%{$searchTerm}%";
+
+                $inner->whereRaw('LOWER(name) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(description) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(category) LIKE ?', [$like]);
             }))
             ->orderBy('name')
             ->get();

@@ -97,16 +97,15 @@
         }
     });
 
-    // Search boxes submit their form on Enter and after a short pause, so the
-    // list filters without a separate button.
+    // Search submits on Enter instead of reloading while the user is still
+    // typing. This keeps the field stable and leaves the browser's native
+    // search-key behavior in control.
     document.querySelectorAll('[data-search-form] input[type="search"]').forEach(function (input) {
-        let timer = null;
+        input.addEventListener('keydown', function (event) {
+            if (event.key !== 'Enter') return;
 
-        input.addEventListener('input', function () {
-            clearTimeout(timer);
-            timer = setTimeout(function () {
-                input.form.requestSubmit();
-            }, 450);
+            event.preventDefault();
+            input.form.requestSubmit();
         });
     });
 })();

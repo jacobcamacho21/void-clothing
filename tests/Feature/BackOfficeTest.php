@@ -239,7 +239,7 @@ class BackOfficeTest extends TestCase
         // Asserted on the SKUs rather than the product names: every product
         // name also appears in the "add variant" dropdown on this page.
         $this->actingAs($this->admin)
-            ->get(route('admin.inventory', ['q' => 'Philemon']))
+            ->get(route('admin.inventory', ['q' => 'philemon']))
             ->assertOk()
             ->assertSee('SKU-KEEP')
             ->assertDontSee('SKU-DROP');
@@ -312,6 +312,24 @@ class BackOfficeTest extends TestCase
     }
 
     /* ----------------------------------------------------------- customers */
+
+    public function test_customer_search_is_case_insensitive(): void
+    {
+        Customer::factory()->create([
+            'username' => 'StreetwearFan',
+            'email' => 'fan@example.com',
+        ]);
+        Customer::factory()->create([
+            'username' => 'OtherShopper',
+            'email' => 'other@example.com',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.customers', ['q' => 'streetwearfan']))
+            ->assertOk()
+            ->assertSee('fan@example.com')
+            ->assertDontSee('other@example.com');
+    }
 
     public function test_an_admin_can_create_and_edit_a_customer(): void
     {
