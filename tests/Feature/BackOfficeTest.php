@@ -28,12 +28,12 @@ class BackOfficeTest extends TestCase
 
     /* ------------------------------------------------------ authentication */
 
-    public function test_staff_can_sign_in_and_land_on_the_register(): void
+    public function test_staff_can_sign_in_and_land_on_the_dashboard(): void
     {
         $this->post(route('staff.login.attempt'), [
             'username' => 'staff1',
             'password' => 'password',
-        ])->assertRedirect(route('pos.register'));
+        ])->assertRedirect(route('admin.dashboard'));
 
         $this->assertAuthenticatedAs($this->staff);
     }
@@ -107,7 +107,6 @@ class BackOfficeTest extends TestCase
             route('admin.orders'),
             route('admin.customers'),
             route('admin.users'),
-            route('pos.register'),
         ] as $url) {
             $this->actingAs($this->admin)->get($url)->assertOk();
         }
@@ -119,7 +118,6 @@ class BackOfficeTest extends TestCase
             route('admin.dashboard'),
             route('admin.inventory'),
             route('admin.orders'),
-            route('pos.register'),
         ] as $url) {
             $this->actingAs($this->staff)->get($url)->assertOk();
         }

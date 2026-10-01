@@ -5,7 +5,6 @@
 
 @section('header-actions')
     <a class="btn-secondary" href="{{ route('admin.orders') }}">Back to queue</a>
-    <a class="btn-primary" href="{{ route('pos.receipt', $order) }}" target="_blank" rel="noopener">View receipt</a>
 @endsection
 
 @section('content')

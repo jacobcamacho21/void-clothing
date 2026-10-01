@@ -34,24 +34,16 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        // Store identity is needed by the shop chrome, the POS header and the
-        // receipt, so it is shared rather than passed from every controller.
+        // Store identity is needed by the shop chrome and back office, so it
+        // is shared rather than passed from every controller.
         View::share('store', config('void.store'));
 
-        // The staff sidebar is one shared component used by both the register
-        // and the back office, so its badge counts are resolved here instead
-        // of being passed by every staff controller. The register already
-        // supplies its own values; those win, and this only fills the gaps.
+        // Resolve the staff sidebar badge counts centrally instead of passing
+        // them from every back office controller.
         View::composer('partials.sidebar', function ($view) {
             $data = $view->getData();
-            $user = auth()->user();
-
             if (! isset($data['pendingCount'])) {
                 $view->with('pendingCount', Order::where('status', OrderStatus::Pending)->count());
-            }
-
-            if (! isset($data['heldCount'])) {
-                $view->with('heldCount', $user?->heldSales()->count() ?? 0);
             }
 
             if (! isset($data['terminal'])) {

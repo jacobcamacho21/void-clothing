@@ -94,7 +94,6 @@ class SmokeTest extends TestCase
             '/admin/orders',
             '/admin/customers',
             '/admin/users',
-            '/pos',
         ] as $uri) {
             $this->actingAs($admin)->get($uri)->assertOk();
         }
@@ -129,10 +128,6 @@ class SmokeTest extends TestCase
         $this->actingAs($admin)->get(route('admin.orders.show', $order))
             ->assertOk()
             ->assertSee('Discontinued Design');
-
-        $this->actingAs($admin)->get(route('pos.receipt', $order))
-            ->assertOk()
-            ->assertSee('Discontinued Design');
     }
 
     public function test_a_guest_customer_can_fill_a_cart_and_keeps_it_after_signing_in(): void
@@ -155,14 +150,13 @@ class SmokeTest extends TestCase
             'A basket built before signing in must survive the login.');
     }
 
-    public function test_a_cashier_and_a_shopper_can_be_signed_in_at_once(): void
+    public function test_a_staff_member_and_a_shopper_can_be_signed_in_at_once(): void
     {
         $cashier = User::factory()->staff()->create();
         $shopper = Customer::factory()->create();
 
         $this->actingAs($cashier)->actingAs($shopper, 'customer');
 
-        $this->get(route('pos.register'))->assertOk();
         $this->get(route('shop.account'))->assertOk();
     }
 }

@@ -11,8 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
- * Back-office sign in. Staff reach both the admin pages and the register with
- * the same account.
+ * Back-office sign in for staff and administrators.
  */
 class StaffAuthController extends Controller
 {
@@ -60,13 +59,7 @@ class StaffAuthController extends Controller
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 
-        // Staff spend their shift at the register; admins start on the
-        // dashboard. Either can navigate to the other.
-        return redirect()->intended(
-            Auth::guard('web')->user()->isAdmin()
-                ? route('admin.dashboard')
-                : route('pos.register')
-        );
+        return redirect()->intended(route('admin.dashboard'));
     }
 
     public function logout(Request $request): RedirectResponse

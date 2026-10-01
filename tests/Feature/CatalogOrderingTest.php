@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -40,24 +39,4 @@ class CatalogOrderingTest extends TestCase
         );
     }
 
-    public function test_an_unexpected_size_sorts_last_rather_than_first(): void
-    {
-        $cashier = User::factory()->staff()->create();
-
-        $product = Product::factory()->create(['name' => 'Alice', 'slug' => 'alice']);
-        ProductVariant::factory()->for($product)->size('One Size')->create();
-        ProductVariant::factory()->for($product)->size('Small')->create();
-        ProductVariant::factory()->for($product)->size('Large')->create();
-
-        $payload = $this->actingAs($cashier)
-            ->getJson(route('pos.catalog'))
-            ->assertOk()
-            ->json('products.0.variants');
-
-        $this->assertSame(
-            ['Small', 'Large', 'One Size'],
-            array_column($payload, 'size'),
-            'A size outside the configured set belongs after the known ones.'
-        );
-    }
 }

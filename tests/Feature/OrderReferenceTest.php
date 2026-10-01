@@ -119,19 +119,6 @@ class OrderReferenceTest extends TestCase
         $this->assertCount(12, $references->unique());
     }
 
-    public function test_the_browser_cannot_choose_its_own_reference(): void
-    {
-        $this->actingAs($this->cashier)->postJson(route('pos.sales.store'), [
-            'items' => [['product_variant_id' => $this->variant->id, 'quantity' => 1]],
-            'payment_method' => PaymentMethod::Cash->value,
-            'amount_tendered' => 1000,
-            'order_ref' => 'TOTALLY-MADE-UP',
-        ])->assertCreated();
-
-        $this->assertNotSame('TOTALLY-MADE-UP', Order::firstOrFail()->order_ref);
-        $this->assertMatchesRegularExpression('/^VD-POS-\d{6}-\d{4}$/', Order::firstOrFail()->order_ref);
-    }
-
     public function test_a_reference_fits_the_column_it_is_stored_in(): void
     {
         $reference = app(ReferenceService::class)->orderReference(OrderChannel::Online);

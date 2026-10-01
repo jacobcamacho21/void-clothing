@@ -6,10 +6,6 @@ use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\StaffAuthController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Pos\HeldSaleController;
-use App\Http\Controllers\Pos\ReceiptController;
-use App\Http\Controllers\Pos\RegisterController;
-use App\Http\Controllers\Pos\SaleController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\CustomerAuthController;
@@ -137,9 +133,8 @@ Route::name('shop.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Back office and register
+| Staff authentication and back office
 |--------------------------------------------------------------------------
-| Staff sign in once and reach both the admin pages and the POS.
 */
 
 Route::prefix('staff')->name('staff.')->group(function () {
@@ -154,23 +149,6 @@ Route::prefix('staff')->name('staff.')->group(function () {
 });
 
 Route::middleware(['auth:web', 'active'])->group(function () {
-
-    /* ---------------------------------------------------------------- POS */
-
-    Route::prefix('pos')->name('pos.')->group(function () {
-        Route::get('/', [RegisterController::class, 'index'])->name('register');
-        Route::get('/catalog', [RegisterController::class, 'catalog'])->name('catalog');
-
-        Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
-        Route::get('/sales/recent', [SaleController::class, 'recent'])->name('sales.recent');
-
-        Route::get('/held-sales', [HeldSaleController::class, 'index'])->name('held.index');
-        Route::post('/held-sales', [HeldSaleController::class, 'store'])->name('held.store');
-        Route::delete('/held-sales/{heldSale}', [HeldSaleController::class, 'destroy'])->name('held.destroy');
-
-        Route::get('/receipts/{order:order_ref}', [ReceiptController::class, 'show'])->name('receipt');
-        Route::get('/receipts/{order:order_ref}/print', [ReceiptController::class, 'print'])->name('receipt.print');
-    });
 
     /* ------------------------------------------------------- Back office */
 
