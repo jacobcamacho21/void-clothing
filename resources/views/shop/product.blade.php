@@ -92,7 +92,6 @@
 <section class="product-reviews" aria-labelledby="product-reviews-title">
     <div class="product-reviews-head">
         <div>
-            <p class="home-reviews-kicker">REAL VOICES</p>
             <h2 id="product-reviews-title">{{ $product->name }} reviews</h2>
         </div>
         @if ($reviews->isNotEmpty())
