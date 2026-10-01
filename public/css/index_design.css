@@ -363,14 +363,14 @@ header {
 }
 
 .product-gallery-frame {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    position: relative;
 }
 
 .product-gallery-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
     display: flex;
-    flex: 0 0 42px;
     width: 42px;
     height: 42px;
     align-items: center;
@@ -384,14 +384,18 @@ header {
     font-size: 30px;
     line-height: 1;
     padding: 0 0 3px;
+    transform: translateY(-50%);
     transition: background .2s ease, transform .2s ease;
 }
 
 .product-gallery-arrow:hover,
 .product-gallery-arrow:focus-visible {
     background: #000;
-    transform: scale(1.05);
+    transform: translateY(-50%) scale(1.05);
 }
+
+.product-gallery-prev { left: -54px; }
+.product-gallery-next { right: -54px; }
 
 .product-gallery-stage.is-changing {
     animation: product-gallery-change .28s ease both;
@@ -1988,8 +1992,9 @@ input[type="submit"]:active,
         flex: none; 
     }
 
-    .product-gallery-frame { gap: 8px; }
-    .product-gallery-arrow { flex-basis: 36px; width: 36px; height: 36px; }
+    .product-gallery-arrow { width: 36px; height: 36px; font-size: 26px; }
+    .product-gallery-prev { left: -46px; }
+    .product-gallery-next { right: -46px; }
 
     .size-chart-table thead th, 
     .size-chart-table tbody td { 
