@@ -29,8 +29,11 @@ class ContactTest extends TestCase
         ])->assertRedirect(route('shop.contact'));
 
         Mail::assertSent(CustomerSupportMessage::class, function (CustomerSupportMessage $mail): bool {
+            $body = $mail->render();
+
             return $mail->customerEmail === 'customer@example.com'
-                && $mail->message === 'I have a question about the sizing of my order.';
+                && $mail->customerMessage === 'I have a question about the sizing of my order.'
+                && str_contains($body, 'I have a question about the sizing of my order.');
         });
     }
 

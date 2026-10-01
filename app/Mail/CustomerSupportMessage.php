@@ -14,7 +14,7 @@ class CustomerSupportMessage extends Mailable
 
     public function __construct(
         public string $customerEmail,
-        public string $message,
+        public string $customerMessage,
     ) {}
 
     public function envelope(): Envelope
