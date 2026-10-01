@@ -75,6 +75,25 @@ class Product extends Model
         return asset('images/products/'.($this->image ?: 'placeholder.png'));
     }
 
+    /** @return array<int, string> */
+    public function imageUrls(): array
+    {
+        $image = $this->image ?: 'placeholder.png';
+        $path = public_path('images/products/'.$image);
+        $directory = dirname($path);
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $stem = pathinfo($path, PATHINFO_FILENAME);
+        $companions = glob($directory.'/'.$stem.'-*'.($extension !== '' ? '.'.$extension : '')) ?: [];
+
+        natsort($companions);
+
+        return collect([$path, ...array_values($companions)])
+            ->filter(fn (string $candidate): bool => is_file($candidate))
+            ->map(fn (string $candidate): string => asset('images/products/'.basename($candidate)))
+            ->values()
+            ->all();
+    }
+
     /** @param Builder<Product> $query */
     public function scopeActive(Builder $query): void
     {

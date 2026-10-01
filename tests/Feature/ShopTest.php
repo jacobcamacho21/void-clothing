@@ -49,6 +49,17 @@ class ShopTest extends TestCase
         $this->get(route('shop.product', $this->product))->assertOk()->assertSee('Size Chart');
     }
 
+    public function test_a_product_page_discovers_numbered_gallery_images(): void
+    {
+        $this->product->update(['image' => 'Alice.png']);
+
+        $this->get(route('shop.product', $this->product))
+            ->assertOk()
+            ->assertSee('images/products/Alice.png')
+            ->assertSee('images/products/Alice-2.png')
+            ->assertSee('Next Temperance image');
+    }
+
     public function test_an_inactive_product_is_hidden(): void
     {
         $this->product->update(['is_active' => false]);

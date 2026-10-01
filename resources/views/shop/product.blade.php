@@ -4,7 +4,26 @@
 
 @section('content')
 <div class="product-detail">
-    <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" class="product-image">
+    @php($imageUrls = $product->imageUrls())
+    <div class="product-gallery" data-product-gallery>
+        <div class="product-gallery-stage">
+            @foreach ($imageUrls as $index => $imageUrl)
+                <img src="{{ $imageUrl }}" alt="{{ $product->name }}{{ $index > 0 ? ' view '.($index + 1) : '' }}"
+                     class="product-image" @if ($index > 0) hidden @endif>
+            @endforeach
+
+            @if (count($imageUrls) > 1)
+                <button type="button" class="product-gallery-arrow product-gallery-prev"
+                        data-gallery-step="-1" aria-label="Previous {{ $product->name }} image">&#8249;</button>
+                <button type="button" class="product-gallery-arrow product-gallery-next"
+                        data-gallery-step="1" aria-label="Next {{ $product->name }} image">&#8250;</button>
+            @endif
+        </div>
+
+        @if (count($imageUrls) > 1)
+            <p class="product-gallery-count" aria-live="polite">1 / {{ count($imageUrls) }}</p>
+        @endif
+    </div>
 
     <div class="product-info">
         <h1>{{ $product->name }}</h1>
@@ -65,3 +84,9 @@
     </div>
 </div>
 @endsection
+
+@if (count($imageUrls) > 1)
+    @push('scripts')
+        <script src="{{ asset('js/product-gallery.js') }}?v={{ filemtime(public_path('js/product-gallery.js')) }}"></script>
+    @endpush
+@endif
