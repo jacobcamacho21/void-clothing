@@ -3,6 +3,7 @@
 
     document.querySelectorAll('[data-product-gallery]').forEach(function (gallery) {
         const images = Array.from(gallery.querySelectorAll('.product-image'));
+        const stage = gallery.querySelector('.product-gallery-stage');
         const count = gallery.querySelector('.product-gallery-count');
         let current = 0;
 
@@ -12,6 +13,10 @@
             images.forEach(function (image, imageIndex) {
                 image.hidden = imageIndex !== current;
             });
+
+            stage.classList.remove('is-changing');
+            void stage.offsetWidth;
+            stage.classList.add('is-changing');
 
             if (count) count.textContent = (current + 1) + ' / ' + images.length;
         }
