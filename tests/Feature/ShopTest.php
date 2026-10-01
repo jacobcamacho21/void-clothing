@@ -257,6 +257,11 @@ class ShopTest extends TestCase
         $this->get(route('shop.home'))
             ->assertOk()
             ->assertSee('The fit and print are excellent. I love this piece.');
+
+        $this->get(route('shop.product', $this->product))
+            ->assertOk()
+            ->assertSee('Temperance reviews')
+            ->assertSee('The fit and print are excellent. I love this piece.');
     }
 
     /* ------------------------------------------------------------ checkout */

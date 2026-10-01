@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductReview;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -78,6 +79,13 @@ class ProductController extends Controller
         return view('shop.product', [
             'product' => $product,
             'variants' => $variants,
+            'reviews' => ProductReview::query()
+                ->with('customer:id,username')
+                ->where('product_id', $product->id)
+                ->where('is_approved', true)
+                ->orderByDesc('rating')
+                ->latest('created_at')
+                ->get(),
         ]);
     }
 }

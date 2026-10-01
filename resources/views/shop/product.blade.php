@@ -88,6 +88,43 @@
         </div>
     </div>
 </div>
+
+<section class="product-reviews" aria-labelledby="product-reviews-title">
+    <div class="product-reviews-head">
+        <div>
+            <p class="home-reviews-kicker">REAL VOICES</p>
+            <h2 id="product-reviews-title">{{ $product->name }} reviews</h2>
+        </div>
+        @if ($reviews->isNotEmpty())
+            <p class="product-rating-summary">
+                <strong>{{ number_format($reviews->avg('rating'), 1) }}</strong>
+                <span class="review-stars" aria-label="Average rating {{ number_format($reviews->avg('rating'), 1) }} out of 5 stars">{{ str_repeat('★', (int) round($reviews->avg('rating'))) }}</span>
+                <small>{{ $reviews->count() }} {{ $reviews->count() === 1 ? 'review' : 'reviews' }}</small>
+            </p>
+        @endif
+    </div>
+
+    @if ($reviews->isEmpty())
+        <p class="home-reviews-empty">No reviews yet. Be the first to share your experience with this piece.</p>
+    @else
+        <div class="review-grid">
+            @foreach ($reviews as $review)
+                <article class="review-card">
+                    <div class="review-card-topline">
+                        <span class="review-avatar">{{ strtoupper(substr($review->customer->username, 0, 1)) }}</span>
+                        <div>
+                            <h3>{{ $review->customer->username }}</h3>
+                            <p>Verified purchase</p>
+                        </div>
+                    </div>
+                    <p class="review-stars" aria-label="{{ $review->rating }} out of 5 stars">{{ str_repeat('★', $review->rating) }}<span>{{ str_repeat('★', 5 - $review->rating) }}</span></p>
+                    <blockquote>{{ $review->body }}</blockquote>
+                    <p class="review-meta">{{ $review->created_at->diffForHumans() }}</p>
+                </article>
+            @endforeach
+        </div>
+    @endif
+</section>
 @endsection
 
 @if (count($imageUrls) > 1)
