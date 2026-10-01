@@ -257,6 +257,8 @@ body.shop-app {
 .shop-meta { color: var(--void-text-faint); font-size: 13px; margin-top: 4px; }
 .shop-note { font-size: 14px; color: var(--void-text-muted); line-height: 1.65; }
 
+.account-support-copy { margin-bottom: 16px; }
+
 /* =====================================================================
    Terms page
    ===================================================================== */
