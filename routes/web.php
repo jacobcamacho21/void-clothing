@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\StaffAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
+use App\Http\Controllers\Shop\ContactController;
 use App\Http\Controllers\Shop\CustomerAuthController;
 use App\Http\Controllers\Shop\ForgotPasswordController;
 use App\Http\Controllers\Shop\HomeController;
@@ -74,6 +75,8 @@ Route::name('shop.')->group(function () {
     Route::get('/search', [ProductController::class, 'search'])->name('search');
     Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('product');
     Route::view('/about', 'shop.about')->name('about');
+    Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+    Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
     Route::view('/terms', 'shop.terms')->name('terms');
 
     // Cart endpoints are called by cart.js and answer with JSON.

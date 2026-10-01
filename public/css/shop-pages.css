@@ -826,3 +826,175 @@ body.shop-app {
    makes that half two lines deep. The status pill beside it centres on the
    pair rather than sitting on the first line's baseline. */
 .shop-section-title .shop-meta { display: block; font-weight: 400; }
+
+/* =====================================================================
+   Contact page
+   ===================================================================== */
+.support-page {
+    max-width: 1120px;
+    margin: 48px auto 72px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    background: var(--void-surface);
+    border: 1px solid var(--void-line);
+    box-shadow: var(--void-shadow-card);
+}
+
+.support-intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 480px;
+    margin-left: -20px;
+    padding: 56px 48px;
+    background: var(--void-black);
+    color: var(--void-surface);
+}
+
+.support-kicker,
+.support-label {
+    margin: 0 0 18px;
+    color: var(--void-text-faint);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--void-track-label);
+    text-transform: uppercase;
+}
+
+.support-intro .support-kicker { color: #aaa; }
+
+.support-intro h1 {
+    max-width: 430px;
+    margin: 0;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1.04;
+    letter-spacing: -.02em;
+}
+
+.support-copy {
+    max-width: 390px;
+    margin: 26px 0 0;
+    color: #d2d2d2;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.support-note {
+    margin: 38px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid #3a3a3a;
+    color: #aaa;
+    font-size: 13px;
+}
+
+.support-form-panel {
+    align-self: center;
+    padding: 56px 64px;
+}
+
+.support-panel-head {
+    margin-bottom: 34px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--void-line);
+}
+
+.support-panel-head .support-label { margin-bottom: 10px; }
+
+.support-panel-head h2 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.support-errors {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--void-bad);
+    background: var(--void-bad-bg);
+    color: var(--void-bad-ink);
+    font-size: 13px;
+}
+
+.support-errors p { margin: 0; }
+
+.support-form .shop-field { margin-bottom: 22px; }
+
+.support-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--void-text-faint);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--void-track-label);
+    text-transform: uppercase;
+}
+
+.support-form input,
+.support-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 0;
+    border-bottom: 2px solid var(--void-line-strong);
+    border-radius: 0;
+    background: var(--void-surface-sunk);
+    color: var(--void-text);
+    font: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 13px 12px;
+    transition: border-color var(--void-speed) var(--void-ease), background var(--void-speed) var(--void-ease);
+}
+
+.support-form textarea { resize: vertical; min-height: 150px; }
+
+.support-form input:focus,
+.support-form textarea:focus {
+    outline: none;
+    border-color: var(--void-black);
+    background: var(--void-surface);
+}
+
+.support-form input::placeholder,
+.support-form textarea::placeholder { color: var(--void-text-dim); }
+
+.support-submit {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid var(--void-black);
+    border-radius: 0;
+    background: var(--void-black);
+    color: var(--void-surface);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--void-track-label);
+    text-transform: uppercase;
+    transition: background var(--void-speed) var(--void-ease), color var(--void-speed) var(--void-ease);
+}
+
+.support-submit:hover,
+.support-submit:focus-visible {
+    background: var(--void-surface);
+    color: var(--void-black);
+}
+
+@media (max-width: 760px) {
+    .support-page {
+        grid-template-columns: 1fr;
+        margin-top: 28px;
+    }
+
+    .support-intro {
+        min-height: auto;
+        margin: 0 -20px;
+        padding: 40px 28px;
+    }
+
+    .support-intro h1 { font-size: 36px; }
+
+    .support-form-panel { padding: 40px 8px; }
+}
