@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}?v={{ filemtime(public_path('css/admin.css')) }}">
     @stack('head')
 </head>
-<body class="admin-page">
+<body class="admin-page" data-update-version-endpoint="{{ route('updates.version') }}">
 @php
     /** @var \App\Models\User $user */
     $user = auth()->user();
@@ -47,6 +47,7 @@
 <script src="{{ asset('js/transition.js') }}"></script>
 <script src="{{ asset('js/modal-motion.js') }}"></script>
 <script src="{{ asset('js/admin.js') }}?v={{ filemtime(public_path('js/admin.js')) }}"></script>
+<script src="{{ asset('js/live-updates.js') }}?v={{ filemtime(public_path('js/live-updates.js')) }}"></script>
 @stack('scripts')
 </body>
 </html>

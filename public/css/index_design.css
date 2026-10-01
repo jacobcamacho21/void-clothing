@@ -946,6 +946,32 @@ header {
 /* =====================================================================
    AUTHENTICATION & ADMIN LOGIN
    ===================================================================== */
+.live-update-notice {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid #111;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .16);
+    color: #111;
+    font-size: 13px;
+}
+
+.live-update-notice button {
+    border: 1px solid #111;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    padding: 7px 10px;
+    font: inherit;
+    font-weight: 700;
+}
+
 .logoLogin {
     display: block;
     margin: 0 auto 40px;

@@ -15,6 +15,7 @@ use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Shop\ProfileController;
 use App\Http\Controllers\Shop\ResetPasswordController;
+use App\Http\Controllers\UpdateVersionController;
 use App\Models\Order;
 use App\Services\OrderService;
 use App\Exceptions\InvalidStatusTransitionException;
@@ -43,6 +44,8 @@ Route::middleware('auth:customer')->group(function () {
         return back()->with('status', 'Verification link sent!');
     })->middleware(['throttle:6,1'])->name('verification.send');
 });
+
+Route::get('/updates/version', UpdateVersionController::class)->name('updates.version');
 
 /*
 |--------------------------------------------------------------------------

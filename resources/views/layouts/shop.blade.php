@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/shop-pages.css') }}?v={{ filemtime(public_path('css/shop-pages.css')) }}">
     @stack('head')
 </head>
-<body class="shop-layout @yield('body-class')">
+<body class="shop-layout @yield('body-class')" data-update-version-endpoint="{{ route('updates.version') }}">
     @include('shop.partials.topbar')
 
     {{-- Mobile Navigation Drawer --}}
@@ -43,6 +43,7 @@
 
     <script src="{{ asset('js/transition.js') }}"></script>
     @include('partials.shop-scripts')
+    <script src="{{ asset('js/live-updates.js') }}?v={{ filemtime(public_path('js/live-updates.js')) }}"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
