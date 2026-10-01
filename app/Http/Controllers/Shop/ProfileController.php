@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
+use App\Enums\OrderStatus;
 use App\Models\CustomerAddress;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +30,16 @@ class ProfileController extends Controller
                 ->with('items')
                 ->latest('created_at')
                 ->limit(20)
+                ->get(),
+            'reviewableProducts' => Product::query()
+                ->whereHas('orderItems', fn ($items) => $items->whereHas(
+                    'order',
+                    fn ($orders) => $orders->where('customer_id', $customer->id)
+                        ->where('status', OrderStatus::Completed)
+                ))
+                ->whereDoesntHave('reviews', fn ($reviews) => $reviews->where('customer_id', $customer->id))
+                ->with('variants')
+                ->orderBy('name')
                 ->get(),
         ]);
     }

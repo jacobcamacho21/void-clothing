@@ -180,6 +180,42 @@
                     </table>
                 @endif
             </section>
+
+            @if ($reviewableProducts->isNotEmpty())
+                <section class="shop-card review-request-card">
+                    <h2 class="shop-section-title">Share your experience</h2>
+                    <p class="shop-note">You have completed purchases waiting for a rating. Your feedback helps the VOID community choose its next piece.</p>
+
+                    @foreach ($reviewableProducts as $product)
+                        <div class="review-request">
+                            <div class="review-request-product">
+                                <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}">
+                                <div>
+                                    <h3>{{ $product->name }}</h3>
+                                    <p>Verified purchase</p>
+                                </div>
+                            </div>
+
+                            <form method="POST" action="{{ route('shop.reviews.store') }}" class="review-form">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <div class="review-form-row">
+                                    <label for="rating-{{ $product->id }}">Rating</label>
+                                    <select id="rating-{{ $product->id }}" name="rating" required>
+                                        <option value="">Choose stars</option>
+                                        @foreach (range(5, 1) as $rating)
+                                            <option value="{{ $rating }}">{{ $rating }} {{ $rating === 1 ? 'star' : 'stars' }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <label class="visually-hidden" for="review-{{ $product->id }}">Review for {{ $product->name }}</label>
+                                <textarea id="review-{{ $product->id }}" name="body" rows="3" minlength="10" maxlength="1000" placeholder="What did you think?" required></textarea>
+                                <button type="submit" class="void-btn void-btn--block">Post review</button>
+                            </form>
+                        </div>
+                    @endforeach
+                </section>
+            @endif
         </div>
     </div>
 </div>

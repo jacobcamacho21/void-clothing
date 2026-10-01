@@ -14,6 +14,7 @@ use App\Http\Controllers\Shop\ForgotPasswordController;
 use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Shop\ProfileController;
+use App\Http\Controllers\Shop\ReviewController;
 use App\Http\Controllers\Shop\ResetPasswordController;
 use App\Http\Controllers\UpdateVersionController;
 use App\Models\Order;
@@ -110,6 +111,7 @@ Route::name('shop.')->group(function () {
 
         Route::get('/account', [ProfileController::class, 'show'])->name('account');
         Route::patch('/account', [ProfileController::class, 'updateName'])->name('account.name');
+        Route::post('/account/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         Route::post('/account/addresses', [ProfileController::class, 'storeAddress'])->name('account.addresses.store');
         Route::patch('/account/addresses/{address}', [ProfileController::class, 'updateAddress'])->name('account.addresses.update');
         Route::delete('/account/addresses/{address}', [ProfileController::class, 'destroyAddress'])->name('account.addresses.destroy');

@@ -7,6 +7,7 @@ use App\Enums\OrderStatus;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -213,6 +214,49 @@ class ShopTest extends TestCase
             ->assertOk()
             ->assertSee('Contact support')
             ->assertSee(route('shop.contact'));
+    }
+
+    public function test_a_customer_can_review_a_product_from_a_completed_order_once(): void
+    {
+        $customer = Customer::factory()->create();
+        $order = Order::factory()->create([
+            'customer_id' => $customer->id,
+            'status' => OrderStatus::Completed,
+        ]);
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $this->product->id,
+            'product_variant_id' => $this->variant->id,
+            'product_name' => $this->product->name,
+        ]);
+
+        $this->actingAs($customer, 'customer')
+            ->get(route('shop.account'))
+            ->assertOk()
+            ->assertSee('Share your experience')
+            ->assertSee($this->product->name);
+
+        $this->actingAs($customer, 'customer')
+            ->from(route('shop.account'))
+            ->post(route('shop.reviews.store'), [
+                'product_id' => $this->product->id,
+                'rating' => 5,
+                'body' => 'The fit and print are excellent. I love this piece.',
+            ])
+            ->assertRedirect(route('shop.account'));
+
+        $this->assertDatabaseHas('product_reviews', [
+            'customer_id' => $customer->id,
+            'product_id' => $this->product->id,
+            'order_id' => $order->id,
+            'rating' => 5,
+            'is_approved' => true,
+            'verified_purchase' => true,
+        ]);
+
+        $this->get(route('shop.home'))
+            ->assertOk()
+            ->assertSee('The fit and print are excellent. I love this piece.');
     }
 
     /* ------------------------------------------------------------ checkout */
