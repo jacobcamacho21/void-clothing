@@ -333,7 +333,9 @@ class ShopTest extends TestCase
             ->get(route('shop.account.order', $order))
             ->assertOk()
             ->assertSee('Approved')
-            ->assertSee($order->order_ref);
+            ->assertSee($order->order_ref)
+            ->assertSee('Contact support')
+            ->assertSee(route('shop.contact'));
     }
 
     public function test_a_shopper_cannot_open_someone_elses_order(): void

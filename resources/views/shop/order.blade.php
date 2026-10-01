@@ -124,6 +124,14 @@
             </p>
         </div>
     @endif
+
+    <div class="shop-card">
+        <h2 class="shop-section-title">Customer Support</h2>
+        <p class="shop-note account-support-copy">
+            Need help with this order or anything else about VOID? Send our team a message.
+        </p>
+        <a href="{{ route('shop.contact') }}" class="void-btn void-btn--block">Contact support</a>
+    </div>
 </div>
 
 @if ($canRequestCancellation)
