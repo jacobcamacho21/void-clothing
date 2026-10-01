@@ -204,6 +204,17 @@ class ShopTest extends TestCase
         $this->get(route('shop.account'))->assertRedirect(route('shop.login'));
     }
 
+    public function test_the_account_page_links_to_customer_support(): void
+    {
+        $customer = Customer::factory()->create();
+
+        $this->actingAs($customer, 'customer')
+            ->get(route('shop.account'))
+            ->assertOk()
+            ->assertSee('Contact support')
+            ->assertSee(route('shop.contact'));
+    }
+
     /* ------------------------------------------------------------ checkout */
 
     public function test_checkout_requires_a_signed_in_shopper(): void

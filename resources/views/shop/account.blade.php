@@ -70,6 +70,15 @@
             </section>
 
             <section class="shop-card">
+                <h2 class="shop-section-title">Customer Support</h2>
+                <p class="shop-note">
+                    Need help with an order, sizing, delivery, or anything else about VOID?
+                    Send our team a message.
+                </p>
+                <a href="{{ route('shop.contact') }}" class="void-btn void-btn--block">Contact support</a>
+            </section>
+
+            <section class="shop-card">
                 <h2 class="shop-section-title">
                     <span>Addresses
                         @if ($addresses->isNotEmpty())
