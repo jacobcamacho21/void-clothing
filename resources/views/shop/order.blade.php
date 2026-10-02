@@ -164,3 +164,34 @@
     </div>
 @endif
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    document.addEventListener('click', function (event) {
+        const opener = event.target.closest('[data-open]');
+
+        if (opener) {
+            const modal = document.getElementById(opener.dataset.open);
+            if (!modal) return;
+
+            modal.classList.add('on');
+            modal.querySelector('input:not([type="hidden"]), select, textarea')?.focus();
+            return;
+        }
+
+        if (event.target.closest('[data-close]') || event.target.classList.contains('shop-modal')) {
+            event.target.closest('.shop-modal')?.classList.remove('on');
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            document.querySelectorAll('.shop-modal.on').forEach(function (modal) {
+                modal.classList.remove('on');
+            });
+        }
+    });
+})();
+</script>
+@endpush
