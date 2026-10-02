@@ -16,7 +16,7 @@ class PayMongoServiceTest extends TestCase
     public function test_it_creates_a_paymongo_checkout_session(): void
     {
         config()->set('services.paymongo', [
-            'base_url' => 'https://api.paymongo.test/v2',
+            'base_url' => 'https://api.paymongo.test',
             'secret_key' => 'sk_test_example',
             'payment_method_types' => ['qrph'],
         ]);

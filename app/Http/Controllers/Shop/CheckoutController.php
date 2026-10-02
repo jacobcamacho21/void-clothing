@@ -142,7 +142,16 @@ class CheckoutController extends Controller
     {
         abort_unless($order->customer_id === $request->user('customer')->id, 404);
 
-        return redirect()->route('shop.account')->with('status', 'Payment is being confirmed for '.$order->order_ref.'.');
+        $this->paymongo->confirmCheckoutSession($order->payment()->firstOrFail());
+
+        $order->refresh();
+
+        return redirect()->route('shop.account')->with(
+            'status',
+            $order->status === \App\Enums\OrderStatus::Approved
+                ? 'Payment confirmed for '.$order->order_ref.'.'
+                : 'Payment is being confirmed for '.$order->order_ref.'.',
+        );
     }
 
     public function paymentCancel(Request $request, Order $order): RedirectResponse
