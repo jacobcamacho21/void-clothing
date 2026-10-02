@@ -820,16 +820,19 @@ a.btn-danger {
 .status-actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 12px; }
 
 .cancellation-review { margin-top: 20px; }
-.cancellation-approve-form { margin-top: 12px; }
-.cancellation-reject-form {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  flex-wrap: wrap;
-  margin-top: 9px;
+.cancellation-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
 }
-.cancellation-reject-form .form-input {
-  flex: 1 1 220px;
+.cancellation-approve-form,
+.cancellation-reject-form { margin: 0; }
+.cancellation-approve-form button,
+.cancellation-reject-form button { width: 100%; }
+.cancellation-actions .form-input {
+  grid-column: 1 / -1;
+  grid-row: 2;
   min-width: 0;
   padding: 10px 12px;
   border: 1px solid var(--void-line-strong);
@@ -838,10 +841,15 @@ a.btn-danger {
   color: var(--void-text);
   font: inherit;
 }
-.cancellation-reject-form .form-input:focus {
+.cancellation-actions .form-input:focus {
   outline: none;
   border-color: var(--void-ink);
   box-shadow: 0 0 0 1px var(--void-ink);
+}
+
+@media (max-width: 560px) {
+  .cancellation-actions { grid-template-columns: 1fr; }
+  .cancellation-actions .form-input { grid-column: 1; grid-row: 3; }
 }
 
 /* =====================================================================

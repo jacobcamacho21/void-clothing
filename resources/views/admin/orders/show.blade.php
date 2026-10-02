@@ -152,19 +152,23 @@
                     <div class="panel-body cancellation-review">
                         <p class="field-label">Customer cancellation reason</p>
                         <p class="field-value">{{ $order->cancellation_reason }}</p>
-                        <form method="POST" action="{{ route('admin.orders.cancellation', $order) }}" class="cancellation-approve-form">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="decision" value="approve">
-                            <button type="submit" class="btn-primary">Approve Cancellation</button>
-                        </form>
-                        <form method="POST" action="{{ route('admin.orders.cancellation', $order) }}" class="cancellation-reject-form">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="decision" value="reject">
-                            <input type="text" name="note" placeholder="Optional note to customer" class="form-input">
-                            <button type="submit" class="btn-secondary">Reject Cancellation</button>
-                        </form>
+                        <div class="cancellation-actions">
+                            <form method="POST" action="{{ route('admin.orders.cancellation', $order) }}" class="cancellation-approve-form">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="decision" value="approve">
+                                <button type="submit" class="btn-primary">Approve Cancellation</button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.orders.cancellation', $order) }}" class="cancellation-reject-form" id="rejectCancellationForm">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="decision" value="reject">
+                                <button type="submit" class="btn-danger">Reject Cancellation</button>
+                            </form>
+                            <input type="text" name="note" form="rejectCancellationForm"
+                                   placeholder="Optional note to customer" class="form-input"
+                                   aria-label="Optional note to customer">
+                        </div>
                     </div>
                 @endif
             </div>
