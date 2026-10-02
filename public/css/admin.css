@@ -819,6 +819,31 @@ a.btn-danger {
 
 .status-actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 12px; }
 
+.cancellation-review { margin-top: 20px; }
+.cancellation-approve-form { margin-top: 12px; }
+.cancellation-reject-form {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 9px;
+}
+.cancellation-reject-form .form-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--void-line-strong);
+  border-radius: var(--void-radius-sm);
+  background: var(--void-surface);
+  color: var(--void-text);
+  font: inherit;
+}
+.cancellation-reject-form .form-input:focus {
+  outline: none;
+  border-color: var(--void-ink);
+  box-shadow: 0 0 0 1px var(--void-ink);
+}
+
 /* =====================================================================
    12. Modals
    ===================================================================== */

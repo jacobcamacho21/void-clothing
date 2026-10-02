@@ -43,6 +43,23 @@ php artisan migrate
 php artisan storage:link
 ```
 
+### Render uploaded files
+
+Render's default filesystem is temporary, so uploaded payment proofs disappear
+after a deploy unless they are stored on persistent storage. Attach a Render
+persistent disk to the service, mount it at `/var/data`, and set these
+production environment variables:
+
+```text
+FILESYSTEM_DISK=local
+FILESYSTEM_PUBLIC_ROOT=/var/data
+```
+
+The application stores payment proofs under `/var/data/payment_proofs` and
+continues to serve them through the existing admin proof route. An S3-compatible
+disk can also be used by setting `FILESYSTEM_DISK=s3` and the standard AWS
+environment variables instead.
+
 ### Bringing the existing data across
 
 The legacy system's three MySQL schemas (`users_db`, `customers_db`,

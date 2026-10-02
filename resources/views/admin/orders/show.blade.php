@@ -149,16 +149,16 @@
                 @endif
 
                 @if ($order->status === \App\Enums\OrderStatus::CancellationRequested)
-                    <div class="panel-body">
+                    <div class="panel-body cancellation-review">
                         <p class="field-label">Customer cancellation reason</p>
                         <p class="field-value">{{ $order->cancellation_reason }}</p>
-                        <form method="POST" action="{{ route('admin.orders.cancellation', $order) }}" class="status-actions">
+                        <form method="POST" action="{{ route('admin.orders.cancellation', $order) }}" class="cancellation-approve-form">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="decision" value="approve">
-                            <button type="submit" class="btn-danger">Approve Cancellation</button>
+                            <button type="submit" class="btn-primary">Approve Cancellation</button>
                         </form>
-                        <form method="POST" action="{{ route('admin.orders.cancellation', $order) }}">
+                        <form method="POST" action="{{ route('admin.orders.cancellation', $order) }}" class="cancellation-reject-form">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="decision" value="reject">
