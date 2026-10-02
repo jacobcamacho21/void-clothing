@@ -739,9 +739,17 @@ tr:hover > td .thumb {
 
 .status-badge.status-pending { background: var(--void-status-pending-bg); color: var(--void-status-pending-ink); }
 .status-badge.status-approved { background: var(--void-status-approved-bg); color: var(--void-status-approved-ink); }
+.status-badge.status-processing { background: var(--void-status-processing-bg); color: var(--void-status-processing-ink); }
+.status-badge.status-dispatched { background: var(--void-status-dispatched-bg); color: var(--void-status-dispatched-ink); }
+.status-badge.status-cancellation_requested { background: var(--void-status-cancellation-bg); color: var(--void-status-cancellation-ink); }
 .status-badge.status-completed { background: var(--void-status-completed-bg); color: var(--void-status-completed-ink); }
 .status-badge.status-rejected { background: var(--void-status-rejected-bg); color: var(--void-status-rejected-ink); }
 .status-badge.status-cancelled { background: var(--void-status-cancelled-bg); color: var(--void-status-cancelled-ink); }
+
+.status-badge.status-awaiting_booking { background: var(--void-status-pending-bg); color: var(--void-status-pending-ink); }
+.status-badge.status-booked { background: var(--void-status-approved-bg); color: var(--void-status-approved-ink); }
+.status-badge.status-delivered { background: var(--void-status-completed-bg); color: var(--void-status-completed-ink); }
+.status-badge.status-failed { background: var(--void-status-rejected-bg); color: var(--void-status-rejected-ink); }
 
 .channel-tag {
   display: inline-block;

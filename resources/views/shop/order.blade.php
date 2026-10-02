@@ -10,7 +10,7 @@
     $symbol = $store['currency_symbol'];
 
     $explanations = [
-        'pending' => 'We have received your order and are checking the payment proof you uploaded. This usually happens within a business day.',
+        'pending' => 'We have received your order and are confirming your payment.',
         'approved' => 'Your payment has been confirmed and your items are reserved. We are preparing your parcel now.',
         'processing' => 'Your payment has been confirmed. We are preparing your parcel now.',
         'dispatched' => 'Your parcel has been handed to the courier and is on its way.',
@@ -25,7 +25,7 @@
         ['status' => OrderStatus::Pending, 'label' => 'Order placed'],
         ['status' => OrderStatus::Approved, 'label' => 'Payment approved'],
         ['status' => OrderStatus::Processing, 'label' => 'Processing'],
-        ['status' => OrderStatus::Dispatched, 'label' => 'Dispatched'],
+        ['status' => OrderStatus::Dispatched, 'label' => 'Out for delivery'],
         ['status' => OrderStatus::Completed, 'label' => 'Fulfilled'],
     ];
 
@@ -38,14 +38,14 @@
     <a href="{{ route('shop.account') }}" class="back-link">&larr; Back to your account</a>
 
     <div class="shop-card">
-        <div class="shop-section-title">
-            <span>
+        <div class="shop-section-title order-header">
+            <div class="order-header-copy">
                 Order {{ $order->order_ref }}
                 <span class="shop-meta">
                     Placed {{ ($order->placed_at ?? $order->created_at)?->format('M d, Y \a\t g:i A') }}
                     &middot; {{ $order->payment_method }}
                 </span>
-            </span>
+            </div>
             <span class="order-status {{ $order->status->badgeClass() }}">{{ $order->status->label() }}</span>
         </div>
 

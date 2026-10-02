@@ -22,7 +22,7 @@
     <div class="summary-card">
         <p class="summary-label">Awaiting review</p>
         <p class="summary-value">{{ number_format($summary['pending']) }}</p>
-        <p class="summary-note">Online orders with payment proof to check</p>
+        <p class="summary-note">Online orders awaiting payment confirmation</p>
     </div>
     <div class="summary-card">
         <p class="summary-label">Counter sales today</p>

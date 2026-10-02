@@ -54,6 +54,12 @@
     --void-status-pending-ink: #8a5a00;
     --void-status-approved-bg: #e8eff8;
     --void-status-approved-ink: #1f4f8f;
+    --void-status-processing-bg: #fff0df;
+    --void-status-processing-ink: #9a4e00;
+    --void-status-dispatched-bg: #dff2f1;
+    --void-status-dispatched-ink: #126b67;
+    --void-status-cancellation-bg: #f5e5ef;
+    --void-status-cancellation-ink: #8c315d;
     --void-status-completed-bg: #dff3e3;
     --void-status-completed-ink: #1f7a1f;
     --void-status-rejected-bg: #fde0e0;

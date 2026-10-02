@@ -35,7 +35,7 @@ enum OrderStatus: string
             self::Pending => 'Pending',
             self::Approved => 'Approved',
             self::Processing => 'Processing',
-            self::Dispatched => 'Dispatched',
+            self::Dispatched => 'Out for delivery',
             self::CancellationRequested => 'Cancellation Requested',
             self::Completed => 'Completed',
             self::Rejected => 'Rejected',

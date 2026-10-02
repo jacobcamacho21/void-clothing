@@ -635,6 +635,9 @@ body.shop-app {
 
 .order-status.status-pending { background: var(--void-status-pending-bg); color: var(--void-status-pending-ink); }
 .order-status.status-approved { background: var(--void-status-approved-bg); color: var(--void-status-approved-ink); }
+.order-status.status-processing { background: var(--void-status-processing-bg); color: var(--void-status-processing-ink); }
+.order-status.status-dispatched { background: var(--void-status-dispatched-bg); color: var(--void-status-dispatched-ink); }
+.order-status.status-cancellation_requested { background: var(--void-status-cancellation-bg); color: var(--void-status-cancellation-ink); }
 .order-status.status-completed { background: var(--void-status-completed-bg); color: var(--void-status-completed-ink); }
 .order-status.status-rejected { background: var(--void-status-rejected-bg); color: var(--void-status-rejected-ink); }
 .order-status.status-cancelled { background: var(--void-status-cancelled-bg); color: var(--void-status-cancelled-ink); }
@@ -974,6 +977,14 @@ body.shop-app {
    makes that half two lines deep. The status pill beside it centres on the
    pair rather than sitting on the first line's baseline. */
 .shop-section-title .shop-meta { display: block; font-weight: 400; }
+
+.order-header { align-items: flex-start; }
+.order-header-copy { min-width: 0; overflow-wrap: anywhere; }
+.order-header .order-status { flex: 0 0 auto; }
+
+@media (max-width: 520px) {
+    .order-header { flex-direction: column; gap: 10px; }
+}
 
 /* =====================================================================
    Contact page
