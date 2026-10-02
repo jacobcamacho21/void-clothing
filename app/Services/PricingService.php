@@ -23,7 +23,7 @@ class PricingService
      *     quantity: int
      * }
      */
-    public function totals(array $lines, OrderChannel $channel): array
+    public function totals(array $lines, OrderChannel $channel, ?float $shippingFee = null): array
     {
         $subtotal = 0.0;
         $quantity = 0;
@@ -35,7 +35,7 @@ class PricingService
 
         $subtotal = $this->round($subtotal);
         $discount = $this->round($this->discountFor($subtotal, $quantity, $channel));
-        $shipping = $this->round($this->shippingFor($channel, $quantity));
+        $shipping = $this->round($shippingFee ?? $this->shippingFor($channel, $quantity));
 
         $total = $this->round($subtotal - $discount + $shipping);
         $tax = $this->round($this->taxFor($total));

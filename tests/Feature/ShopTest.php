@@ -11,8 +11,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ShopTest extends TestCase
@@ -280,7 +279,7 @@ class ShopTest extends TestCase
 
     public function test_placing_an_order_records_it_as_pending_without_moving_stock(): void
     {
-        Storage::fake('public');
+        $this->fakeCheckoutProviders();
 
         $customer = Customer::factory()->create();
 
@@ -298,19 +297,19 @@ class ShopTest extends TestCase
             'province' => 'Cavite',
             'postal_code' => '4102',
             'country' => 'Philippines',
-            'payment' => 'digital',
+            'payment' => 'paymongo',
             'agreed_to_terms' => '1',
-            'proof_of_payment' => UploadedFile::fake()->image('proof.jpg'),
-        ])->assertRedirect(route('shop.account'));
+        ])->assertRedirect('https://checkout.paymongo.test/cs_test_123');
 
         $order = Order::firstOrFail();
 
         $this->assertSame(OrderChannel::Online, $order->channel);
         $this->assertSame(OrderStatus::Pending, $order->status);
         $this->assertEquals(700.00, (float) $order->subtotal);
-        $this->assertEquals(50.00, (float) $order->shipping_fee);
-        $this->assertEquals(750.00, (float) $order->total_amount);
-        $this->assertNotNull($order->proof_of_payment);
+        $this->assertEquals(145.50, (float) $order->shipping_fee);
+        $this->assertEquals(845.50, (float) $order->total_amount);
+        $this->assertSame('pending', $order->payment->status);
+        $this->assertSame('cs_test_123', $order->payment->provider_checkout_id);
 
         $this->assertSame(5, $this->variant->fresh()->stock,
             'Online orders must not move stock until a staff member approves them.');
@@ -319,7 +318,7 @@ class ShopTest extends TestCase
         $this->assertSame(0, $this->getJson(route('shop.cart.index'))->json('count'));
     }
 
-    public function test_checkout_without_proof_of_payment_is_refused(): void
+    public function test_checkout_without_a_payment_method_is_refused(): void
     {
         $customer = Customer::factory()->create();
 
@@ -334,16 +333,15 @@ class ShopTest extends TestCase
             'province' => 'Cavite',
             'postal_code' => '4102',
             'country' => 'Philippines',
-            'payment' => 'digital',
             'agreed_to_terms' => '1',
-        ])->assertSessionHasErrors('proof_of_payment');
+        ])->assertSessionHasErrors('payment');
 
         $this->assertSame(0, Order::count());
     }
 
     public function test_the_checkout_address_is_saved_for_next_time(): void
     {
-        Storage::fake('public');
+        $this->fakeCheckoutProviders();
         $customer = Customer::factory()->create();
 
         $this->actingAs($customer, 'customer')
@@ -357,14 +355,37 @@ class ShopTest extends TestCase
             'province' => 'Cavite',
             'postal_code' => '4102',
             'country' => 'Philippines',
-            'payment' => 'digital',
+            'payment' => 'paymongo',
             'agreed_to_terms' => '1',
-            'proof_of_payment' => UploadedFile::fake()->image('proof.jpg'),
         ]);
 
         $this->assertDatabaseHas('customer_addresses', [
             'customer_id' => $customer->id,
             'street' => 'Tangulan Street Kaingen',
+        ]);
+    }
+
+    private function fakeCheckoutProviders(): void
+    {
+        config()->set('services.lalamove.pickup_address', 'Tangulan Street, Kawit, Cavite');
+        config()->set('services.lalamove.pickup_latitude', '14.4450');
+        config()->set('services.lalamove.pickup_longitude', '120.9010');
+
+        Http::fake([
+            '*lalamove.com/v3/quotations' => Http::response([
+                'data' => [
+                    'quotationId' => 'quote-checkout-123',
+                    'expiresAt' => '2026-10-02T12:05:00.000Z',
+                    'priceBreakdown' => ['total' => '145.50', 'currency' => 'PHP'],
+                    'distance' => ['value' => '8200'],
+                ],
+            ], 201),
+            '*paymongo.com/v2/checkout_sessions' => Http::response([
+                'data' => [
+                    'id' => 'cs_test_123',
+                    'attributes' => ['checkout_url' => 'https://checkout.paymongo.test/cs_test_123'],
+                ],
+            ], 201),
         ]);
     }
 

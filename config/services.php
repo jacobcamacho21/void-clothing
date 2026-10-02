@@ -38,4 +38,24 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    'lalamove' => [
+        'base_url' => env('LALAMOVE_BASE_URL', 'https://rest.sandbox.lalamove.com'),
+        'api_key' => env('LALAMOVE_API_KEY'),
+        'api_secret' => env('LALAMOVE_API_SECRET'),
+        'market' => env('LALAMOVE_MARKET', 'PH'),
+        'language' => env('LALAMOVE_LANGUAGE', 'en_PH'),
+        'service_type' => env('LALAMOVE_SERVICE_TYPE', 'MOTORCYCLE'),
+        'pickup_address' => env('LALAMOVE_PICKUP_ADDRESS'),
+        'pickup_latitude' => env('LALAMOVE_PICKUP_LATITUDE'),
+        'pickup_longitude' => env('LALAMOVE_PICKUP_LONGITUDE'),
+    ],
+
+    'paymongo' => [
+        'base_url' => env('PAYMONGO_BASE_URL', 'https://api.paymongo.com/v2'),
+        'secret_key' => env('PAYMONGO_SECRET_KEY'),
+        'public_key' => env('PAYMONGO_PUBLIC_KEY'),
+        'webhook_secret' => env('PAYMONGO_WEBHOOK_SECRET'),
+        'payment_method_types' => ['card', 'gcash', 'paymaya', 'grab_pay'],
+    ],
+
 ];

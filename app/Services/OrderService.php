@@ -10,6 +10,7 @@ use App\Exceptions\InvalidStatusTransitionException;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\ProductVariant;
+use App\Services\Delivery\DeliveryQuote;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -40,9 +41,9 @@ class OrderService
      * @param  array<int, array{product_variant_id: int, quantity: int}>  $lines
      * @return array{subtotal: float, discount_amount: float, shipping_fee: float, tax_amount: float, total_amount: float, quantity: int}
      */
-    public function quote(array $lines, OrderChannel $channel): array
+    public function quote(array $lines, OrderChannel $channel, ?float $shippingFee = null): array
     {
-        return $this->pricing->totals($this->resolveLines($lines), $channel);
+        return $this->pricing->totals($this->resolveLines($lines), $channel, $shippingFee);
     }
 
     /**
@@ -130,10 +131,11 @@ class OrderService
         ?string $proofPath = null,
         PaymentMethod $method = PaymentMethod::Digital,
         bool $agreedToTerms = false,
+        ?DeliveryQuote $deliveryQuote = null,
     ): Order {
-        return DB::transaction(function () use ($lines, $customer, $shippingAddress, $recipientName, $proofPath, $method, $agreedToTerms) {
+        return DB::transaction(function () use ($lines, $customer, $shippingAddress, $recipientName, $proofPath, $method, $agreedToTerms, $deliveryQuote) {
             $resolved = $this->resolveLines($lines);
-            $totals = $this->pricing->totals($resolved, OrderChannel::Online);
+            $totals = $this->pricing->totals($resolved, OrderChannel::Online, $deliveryQuote?->fee);
             $now = Carbon::now();
 
             $order = Order::create([
@@ -157,13 +159,28 @@ class OrderService
 
             $this->writeItems($order, $resolved);
 
+            if ($deliveryQuote !== null) {
+                $order->delivery()->create([
+                    'provider' => $deliveryQuote->provider,
+                    'quote_reference' => $deliveryQuote->reference,
+                    'quoted_fee' => $deliveryQuote->fee,
+                    'quote_expires_at' => $deliveryQuote->expiresAt,
+                    'status' => 'awaiting_booking',
+                    'pickup_address' => config('services.lalamove.pickup_address'),
+                    'dropoff_address' => $shippingAddress,
+                    'provider_payload' => $deliveryQuote->payload,
+                ]);
+            }
+
             $order->payments()->create([
                 'method' => $method->value,
+                'provider' => $method === PaymentMethod::PayMongo ? 'paymongo' : null,
+                'status' => $method === PaymentMethod::PayMongo ? 'pending' : 'paid',
                 'amount_due' => $totals['total_amount'],
-                'amount_tendered' => $totals['total_amount'],
+                'amount_tendered' => $method === PaymentMethod::PayMongo ? 0 : $totals['total_amount'],
                 'change_due' => 0,
                 'proof_path' => $proofPath,
-                'paid_at' => $now,
+                'paid_at' => $method === PaymentMethod::PayMongo ? null : $now,
             ]);
 
             $this->recordHistory($order, null, OrderStatus::Pending, 'Order placed online.');

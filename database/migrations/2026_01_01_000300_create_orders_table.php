@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('order_ref', 32)->unique();
             $table->enum('channel', ['online', 'pos'])->default('online');
             $table->enum('status', [
-                'pending', 'approved', 'completed', 'rejected', 'cancelled',
+                'pending', 'approved', 'processing', 'dispatched',
+                'cancellation_requested', 'completed', 'rejected', 'cancelled',
             ])->default('pending');
 
             $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();

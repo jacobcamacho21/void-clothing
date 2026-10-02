@@ -171,9 +171,9 @@ class CartService
      *     tax_amount: float, total_amount: float, quantity: int
      * }
      */
-    public function totals(): array
+    public function totals(?float $shippingFee = null): array
     {
-        return $this->pricing->totals($this->lines(), OrderChannel::Online);
+        return $this->pricing->totals($this->lines(), OrderChannel::Online, $shippingFee);
     }
 
     public function count(): int

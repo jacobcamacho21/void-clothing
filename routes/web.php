@@ -16,6 +16,7 @@ use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Shop\ProfileController;
 use App\Http\Controllers\Shop\ReviewController;
 use App\Http\Controllers\Shop\ResetPasswordController;
+use App\Http\Controllers\Payments\PayMongoWebhookController;
 use App\Http\Controllers\UpdateVersionController;
 use App\Models\Order;
 use App\Services\OrderService;
@@ -47,6 +48,7 @@ Route::middleware('auth:customer')->group(function () {
 });
 
 Route::get('/updates/version', UpdateVersionController::class)->name('updates.version');
+Route::post('/webhooks/paymongo', PayMongoWebhookController::class)->name('webhooks.paymongo');
 
 /*
 |--------------------------------------------------------------------------
@@ -107,7 +109,10 @@ Route::name('shop.')->group(function () {
     // Authenticated Customer Core Routes
     Route::middleware('auth:customer')->prefix('shop')->group(function () {
         Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
+        Route::post('/checkout/shipping-quote', [CheckoutController::class, 'shippingQuote'])->name('checkout.shipping-quote');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+        Route::get('/payment/success/{order:order_ref}', [CheckoutController::class, 'paymentSuccess'])->name('payment.success');
+        Route::get('/payment/cancel/{order:order_ref}', [CheckoutController::class, 'paymentCancel'])->name('payment.cancel');
 
         Route::get('/account', [ProfileController::class, 'show'])->name('account');
         Route::patch('/account', [ProfileController::class, 'updateName'])->name('account.name');
@@ -171,6 +176,7 @@ Route::middleware(['auth:web', 'active'])->group(function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders');
         Route::get('/orders/{order:order_ref}', [OrderController::class, 'show'])->name('orders.show');
         Route::get('/orders/{order:order_ref}/proof', [OrderController::class, 'proof'])->name('orders.proof');
+        Route::patch('/orders/{order:order_ref}/delivery', [OrderController::class, 'updateDelivery'])->name('orders.delivery');
         Route::patch('/orders/{order:order_ref}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
         Route::patch('/orders/{order:order_ref}/cancellation', [OrderController::class, 'resolveCancellation'])->name('orders.cancellation');
         Route::delete('/orders/{order:order_ref}', [OrderController::class, 'destroy'])->name('orders.destroy');

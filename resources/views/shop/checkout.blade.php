@@ -81,26 +81,22 @@
                 </div>
             </div>
 
+            <div class="shop-actions">
+                <button type="button" class="void-btn void-btn--ghost" id="quoteDeliveryBtn">Calculate delivery fee</button>
+                <span class="shop-note" id="quoteDeliveryStatus" role="status"></span>
+            </div>
+
             <div class="shop-field">
                 <label class="shop-label" for="payment">Payment Method</label>
                 <select id="payment" name="payment" class="shop-input" required>
-                    <option value="digital" selected>Digital Payment</option>
+                    <option value="paymongo" selected>PayMongo</option>
                 </select>
             </div>
 
             <div class="pay-block">
-                <span class="shop-label">Scan to Pay</span>
-                <img src="{{ asset('images/site/paymentqr.jpg') }}" alt="Digital payment QR code" class="pay-qr">
                 <p class="shop-note">
-                    Scan the QR code above to complete your payment, then upload a screenshot as proof below.
-                    Your order is reviewed by our team once the proof is received.
+                    You will continue to PayMongo to complete your payment securely. Your order is confirmed after PayMongo reports the payment to us.
                 </p>
-
-                <div class="shop-field">
-                    <label class="shop-label" for="proof_of_payment">Proof of Payment</label>
-                    <input type="file" id="proof_of_payment" name="proof_of_payment" class="shop-input"
-                           accept="image/png,image/jpeg,image/webp" required>
-                </div>
             </div>
 
             <label class="shop-check">
@@ -132,8 +128,8 @@
 
         <ul class="shop-totals">
             <li><span>Subtotal</span><b>{{ $symbol }}{{ number_format($totals['subtotal'], 2) }}</b></li>
-            <li><span>Shipping</span><b>{{ $symbol }}{{ number_format($totals['shipping_fee'], 2) }}</b></li>
-            <li class="grand"><span>Total</span><b>{{ $symbol }}{{ number_format($totals['total_amount'], 2) }}</b></li>
+            <li><span>Shipping</span><b id="shippingFeeValue">Calculate above</b></li>
+            <li class="grand"><span>Total</span><b id="orderTotalValue">{{ $symbol }}{{ number_format($totals['total_amount'], 2) }}</b></li>
         </ul>
     </div>
     </div>
@@ -142,15 +138,58 @@
 
 @push('scripts')
 <script>
+    const checkoutForm = document.getElementById('checkoutForm');
+    const quoteButton = document.getElementById('quoteDeliveryBtn');
+    const quoteStatus = document.getElementById('quoteDeliveryStatus');
+    const placeOrderButton = document.getElementById('placeOrderBtn');
+    const termsCheckbox = document.getElementById('checkoutTerms');
+    let deliveryQuoteReady = false;
+
+    function updatePlaceOrderState() {
+        placeOrderButton.disabled = !termsCheckbox.checked || !deliveryQuoteReady;
+    }
+
+    quoteButton.addEventListener('click', async function () {
+        quoteButton.disabled = true;
+        quoteStatus.textContent = 'Getting a live delivery quote…';
+        deliveryQuoteReady = false;
+        updatePlaceOrderState();
+
+        try {
+            const response = await fetch('{{ route('shop.checkout.shipping-quote') }}', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                },
+                body: new FormData(checkoutForm),
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Delivery pricing is unavailable right now.');
+            }
+
+            document.getElementById('shippingFeeValue').textContent = '{{ $symbol }}' + Number(data.fee).toFixed(2);
+            document.getElementById('orderTotalValue').textContent = '{{ $symbol }}' + Number(data.total).toFixed(2);
+            quoteStatus.textContent = 'Delivery quote ready.';
+            deliveryQuoteReady = true;
+        } catch (error) {
+            quoteStatus.textContent = error.message;
+        } finally {
+            quoteButton.disabled = false;
+            updatePlaceOrderState();
+        }
+    });
+
     // Uploading the proof can take a moment on a phone connection; disabling
     // the button keeps an impatient tap from placing the order twice.
-    document.getElementById('checkoutForm').addEventListener('submit', function () {
-        const button = document.getElementById('placeOrderBtn');
-        button.disabled = true;
-        button.textContent = 'Placing order…';
+    checkoutForm.addEventListener('submit', function () {
+        placeOrderButton.disabled = true;
+        placeOrderButton.textContent = 'Placing order…';
     });
-    document.getElementById('checkoutTerms').addEventListener('change', function () {
-        document.getElementById('placeOrderBtn').disabled = !this.checked;
+    termsCheckbox.addEventListener('change', function () {
+        updatePlaceOrderState();
     });
 </script>
 @endpush

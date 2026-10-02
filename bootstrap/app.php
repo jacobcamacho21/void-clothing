@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/paymongo',
+        ]);
+
         // Render terminates TLS at its load balancer and forwards requests
         // over plain HTTP with X-Forwarded-* headers. Without this, Laravel
         // thinks every request is http://, which breaks signed URLs (email

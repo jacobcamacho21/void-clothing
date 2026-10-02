@@ -16,6 +16,12 @@ class Payment extends Model
     protected $fillable = [
         'order_id',
         'method',
+        'provider',
+        'provider_checkout_id',
+        'provider_payment_id',
+        'status',
+        'failure_reason',
+        'provider_payload',
         'amount_due',
         'amount_tendered',
         'change_due',
@@ -29,6 +35,7 @@ class Payment extends Model
     {
         return [
             'method' => PaymentMethod::class,
+            'provider_payload' => 'array',
             'amount_due' => 'decimal:2',
             'amount_tendered' => 'decimal:2',
             'change_due' => 'decimal:2',

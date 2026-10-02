@@ -66,7 +66,7 @@ class OrderController extends Controller
         $this->authorize('view', $order);
 
         $order->load([
-            'items', 'payment', 'receipt', 'cashier', 'customer',
+            'items', 'payment', 'delivery', 'receipt', 'cashier', 'customer',
             'statusHistories.author',
         ]);
 
@@ -141,6 +141,45 @@ class OrderController extends Controller
         }
 
         return back()->with('status', 'Order '.$order->order_ref.' marked '.$target->label().'.');
+    }
+
+    public function updateDelivery(Request $request, Order $order): RedirectResponse
+    {
+        $this->authorize('review', $order);
+
+        $delivery = $order->delivery;
+        abort_unless($delivery !== null, 404);
+
+        $validated = $request->validate([
+            'actual_fee' => ['required', 'numeric', 'min:0'],
+            'booking_reference' => ['required', 'string', 'max:100'],
+            'tracking_url' => ['nullable', 'url', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $delivery->update([
+            'actual_fee' => $validated['actual_fee'],
+            'booking_reference' => $validated['booking_reference'],
+            'tracking_url' => $validated['tracking_url'] ?? null,
+            'status' => 'booked',
+            'booked_at' => now(),
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        try {
+            if ($order->status === OrderStatus::Approved) {
+                $this->orders->transition(
+                    $order,
+                    OrderStatus::Processing,
+                    $request->user(),
+                    'Lalamove delivery booked: '.$validated['booking_reference'],
+                );
+            }
+        } catch (InvalidStatusTransitionException $exception) {
+            return back()->withErrors(['delivery' => $exception->getMessage()]);
+        }
+
+        return back()->with('status', 'Delivery booking recorded for '.$order->order_ref.'.');
     }
 
     public function resolveCancellation(Request $request, Order $order): RedirectResponse
