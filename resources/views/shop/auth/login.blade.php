@@ -3,6 +3,7 @@
 @section('title', 'Sign in')
 @section('auth-title', 'Sign in')
 @section('auth-sub', 'Welcome back. Sign in to check out and track your orders.')
+@section('auth-body-class', 'auth-storefront')
 
 @section('content')
     <form method="POST" action="{{ route('shop.login.attempt') }}">

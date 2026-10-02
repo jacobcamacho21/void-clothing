@@ -274,6 +274,10 @@ body.auth-page {
     padding: 56px 20px;
 }
 
+.auth-page.auth-storefront .auth-main {
+    padding-top: 96px;
+}
+
 .auth-card {
     width: 100%;
     max-width: 400px;
