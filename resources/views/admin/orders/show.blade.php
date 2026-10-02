@@ -179,58 +179,6 @@
                 <div class="panel-header">
                     <div>
                         <h2 class="panel-title">Move this order</h2>
-
-                @if ($order->delivery)
-                    <div class="panel">
-                        <div class="panel-header">
-                            <h2 class="panel-title">Delivery</h2>
-                            <span class="status-badge status-{{ $order->delivery->status }}">
-                                {{ ucwords(str_replace('_', ' ', $order->delivery->status)) }}
-                            </span>
-                        </div>
-                        <div class="panel-body">
-                            <ul class="detail-list">
-                                <li><span>Provider</span><b>{{ ucfirst($order->delivery->provider) }}</b></li>
-                                <li><span>Quoted fee</span><b>{{ $symbol }}{{ number_format($order->delivery->quoted_fee, 2) }}</b></li>
-                                @if ($order->delivery->actual_fee !== null)
-                                    <li><span>Actual fee</span><b>{{ $symbol }}{{ number_format($order->delivery->actual_fee, 2) }}</b></li>
-                                @endif
-                                @if ($order->delivery->booking_reference)
-                                    <li><span>Booking reference</span><b>{{ $order->delivery->booking_reference }}</b></li>
-                                @endif
-                                @if ($order->delivery->tracking_url)
-                                    <li><span>Tracking</span><b><a href="{{ $order->delivery->tracking_url }}" target="_blank" rel="noopener">Open link</a></b></li>
-                                @endif
-                            </ul>
-
-                            @can('review', $order)
-                                @if (! in_array($order->delivery->status, ['delivered', 'cancelled'], true))
-                                    <form method="POST" action="{{ route('admin.orders.delivery', $order) }}" class="stack-form">
-                                        @csrf
-                                        @method('PATCH')
-                                        <div class="form-field">
-                                            <label class="form-label" for="actual_fee">Actual Lalamove fee</label>
-                                            <input class="form-input" type="number" name="actual_fee" id="actual_fee" min="0" step="0.01" value="{{ old('actual_fee', $order->delivery->actual_fee ?? $order->delivery->quoted_fee) }}" required>
-                                        </div>
-                                        <div class="form-field">
-                                            <label class="form-label" for="booking_reference">Booking reference</label>
-                                            <input class="form-input" type="text" name="booking_reference" id="booking_reference" value="{{ old('booking_reference', $order->delivery->booking_reference) }}" required>
-                                        </div>
-                                        <div class="form-field">
-                                            <label class="form-label" for="tracking_url">Tracking link</label>
-                                            <input class="form-input" type="url" name="tracking_url" id="tracking_url" value="{{ old('tracking_url', $order->delivery->tracking_url) }}">
-                                        </div>
-                                        <div class="form-field">
-                                            <label class="form-label" for="delivery_notes">Notes</label>
-                                            <textarea class="form-input" name="notes" id="delivery_notes" maxlength="1000">{{ old('notes', $order->delivery->notes) }}</textarea>
-                                        </div>
-                                        <button type="submit" class="btn-primary">Save delivery booking</button>
-                                    </form>
-                                @endif
-                            @endcan
-                        </div>
-                    </div>
-                @endif
                         <p class="panel-subtitle">Stock follows the status automatically</p>
                     </div>
                 </div>
@@ -256,6 +204,60 @@
                 </div>
             </div>
         @endcan
+
+        @if ($order->delivery)
+            <div class="panel delivery-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Delivery</h2>
+                    <span class="status-badge status-{{ $order->delivery->status }}">
+                        {{ ucwords(str_replace('_', ' ', $order->delivery->status)) }}
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <ul class="detail-list">
+                        <li><span>Provider</span><b>{{ ucfirst($order->delivery->provider) }}</b></li>
+                        <li><span>Quoted fee</span><b>{{ $symbol }}{{ number_format($order->delivery->quoted_fee, 2) }}</b></li>
+                        @if ($order->delivery->actual_fee !== null)
+                            <li><span>Actual fee</span><b>{{ $symbol }}{{ number_format($order->delivery->actual_fee, 2) }}</b></li>
+                        @endif
+                        @if ($order->delivery->booking_reference)
+                            <li><span>Booking reference</span><b>{{ $order->delivery->booking_reference }}</b></li>
+                        @endif
+                        @if ($order->delivery->tracking_url)
+                            <li><span>Tracking</span><b><a href="{{ $order->delivery->tracking_url }}" target="_blank" rel="noopener">Open link</a></b></li>
+                        @endif
+                    </ul>
+
+                    @can('review', $order)
+                        @if (! in_array($order->delivery->status, ['delivered', 'cancelled'], true))
+                            <form method="POST" action="{{ route('admin.orders.delivery', $order) }}" class="delivery-form">
+                                @csrf
+                                @method('PATCH')
+                                <div class="delivery-form-grid">
+                                    <div class="form-field">
+                                        <label class="form-label" for="actual_fee">Actual Lalamove fee</label>
+                                        <input class="form-input" type="number" name="actual_fee" id="actual_fee" min="0" step="0.01" value="{{ old('actual_fee', $order->delivery->actual_fee ?? $order->delivery->quoted_fee) }}" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label" for="booking_reference">Booking reference</label>
+                                        <input class="form-input" type="text" name="booking_reference" id="booking_reference" value="{{ old('booking_reference', $order->delivery->booking_reference) }}" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label" for="tracking_url">Tracking link</label>
+                                        <input class="form-input" type="url" name="tracking_url" id="tracking_url" value="{{ old('tracking_url', $order->delivery->tracking_url) }}">
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label" for="delivery_notes">Notes</label>
+                                        <textarea class="form-input" name="notes" id="delivery_notes" maxlength="1000">{{ old('notes', $order->delivery->notes) }}</textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary">Save delivery booking</button>
+                            </form>
+                        @endif
+                    @endcan
+                </div>
+            </div>
+        @endif
 
         <div class="panel">
             <div class="panel-header"><h2 class="panel-title">History</h2></div>
