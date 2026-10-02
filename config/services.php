@@ -55,7 +55,7 @@ return [
         'secret_key' => env('PAYMONGO_SECRET_KEY'),
         'public_key' => env('PAYMONGO_PUBLIC_KEY'),
         'webhook_secret' => env('PAYMONGO_WEBHOOK_SECRET'),
-        'payment_method_types' => ['card', 'gcash', 'paymaya', 'grab_pay'],
+        'payment_method_types' => ['qrph'],
     ],
 
 ];

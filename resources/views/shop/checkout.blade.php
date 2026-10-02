@@ -14,7 +14,7 @@
     <header class="shop-page-head">
         <div>
             <h1 class="shop-page-title">Checkout</h1>
-            <p class="shop-page-sub">Where the parcel goes, and the proof that it was paid for.</p>
+            <p class="shop-page-sub">Where your parcel goes, and how you pay.</p>
         </div>
     </header>
 
@@ -30,7 +30,7 @@
     <div class="shop-card">
         <h2 class="shop-section-title">Delivery Details</h2>
 
-        <form method="POST" action="{{ route('shop.checkout.store') }}" enctype="multipart/form-data" id="checkoutForm">
+        <form method="POST" action="{{ route('shop.checkout.store') }}" id="checkoutForm">
             @csrf
 
             <div class="shop-field">
@@ -81,21 +81,18 @@
                 </div>
             </div>
 
-            <div class="shop-actions">
-                <button type="button" class="void-btn void-btn--ghost" id="quoteDeliveryBtn">Calculate delivery fee</button>
-                <span class="shop-note" id="quoteDeliveryStatus" role="status"></span>
-            </div>
+            <p class="shop-note" id="quoteDeliveryStatus" role="status">Enter your delivery details to calculate shipping.</p>
 
             <div class="shop-field">
                 <label class="shop-label" for="payment">Payment Method</label>
                 <select id="payment" name="payment" class="shop-input" required>
-                    <option value="paymongo" selected>PayMongo</option>
+                    <option value="paymongo" selected>PayMongo QR Ph</option>
                 </select>
             </div>
 
             <div class="pay-block">
                 <p class="shop-note">
-                    You will continue to PayMongo to complete your payment securely. Your order is confirmed after PayMongo reports the payment to us.
+                    You will continue to PayMongo to scan a QR Ph code. Your order is confirmed after PayMongo reports the payment to us.
                 </p>
             </div>
 
@@ -128,7 +125,7 @@
 
         <ul class="shop-totals">
             <li><span>Subtotal</span><b>{{ $symbol }}{{ number_format($totals['subtotal'], 2) }}</b></li>
-            <li><span>Shipping</span><b id="shippingFeeValue">Calculate above</b></li>
+            <li><span>Shipping</span><b id="shippingFeeValue">Awaiting address</b></li>
             <li class="grand"><span>Total</span><b id="orderTotalValue">{{ $symbol }}{{ number_format($totals['total_amount'], 2) }}</b></li>
         </ul>
     </div>
@@ -139,18 +136,32 @@
 @push('scripts')
 <script>
     const checkoutForm = document.getElementById('checkoutForm');
-    const quoteButton = document.getElementById('quoteDeliveryBtn');
     const quoteStatus = document.getElementById('quoteDeliveryStatus');
     const placeOrderButton = document.getElementById('placeOrderBtn');
     const termsCheckbox = document.getElementById('checkoutTerms');
+    const addressFields = ['recipient_name', 'phone', 'street', 'city', 'province', 'postal_code', 'country']
+        .map((name) => document.getElementById(name));
     let deliveryQuoteReady = false;
+    let quoteTimer;
+    let quoteRequest;
 
     function updatePlaceOrderState() {
         placeOrderButton.disabled = !termsCheckbox.checked || !deliveryQuoteReady;
     }
 
-    quoteButton.addEventListener('click', async function () {
-        quoteButton.disabled = true;
+    async function requestDeliveryQuote() {
+        if (addressFields.some((field) => !field.value.trim())) {
+            quoteStatus.textContent = 'Enter your delivery details to calculate shipping.';
+            deliveryQuoteReady = false;
+            updatePlaceOrderState();
+            return;
+        }
+
+        if (quoteRequest) {
+            quoteRequest.abort();
+        }
+
+        quoteRequest = new AbortController();
         quoteStatus.textContent = 'Getting a live delivery quote…';
         deliveryQuoteReady = false;
         updatePlaceOrderState();
@@ -163,6 +174,7 @@
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
                 },
                 body: new FormData(checkoutForm),
+                signal: quoteRequest.signal,
             });
             const data = await response.json();
 
@@ -175,15 +187,25 @@
             quoteStatus.textContent = 'Delivery quote ready.';
             deliveryQuoteReady = true;
         } catch (error) {
-            quoteStatus.textContent = error.message;
+            if (error.name !== 'AbortError') {
+                quoteStatus.textContent = error.message;
+            }
         } finally {
-            quoteButton.disabled = false;
+            quoteRequest = null;
             updatePlaceOrderState();
         }
-    });
+    }
 
-    // Uploading the proof can take a moment on a phone connection; disabling
-    // the button keeps an impatient tap from placing the order twice.
+    addressFields.forEach((field) => field.addEventListener('input', function () {
+        clearTimeout(quoteTimer);
+        deliveryQuoteReady = false;
+        updatePlaceOrderState();
+        quoteTimer = setTimeout(requestDeliveryQuote, 700);
+    }));
+
+    requestDeliveryQuote();
+
+    // Prevent a second submission while the customer is being redirected.
     checkoutForm.addEventListener('submit', function () {
         placeOrderButton.disabled = true;
         placeOrderButton.textContent = 'Placing order…';

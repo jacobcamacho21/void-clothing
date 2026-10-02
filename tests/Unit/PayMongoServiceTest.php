@@ -18,7 +18,7 @@ class PayMongoServiceTest extends TestCase
         config()->set('services.paymongo', [
             'base_url' => 'https://api.paymongo.test/v2',
             'secret_key' => 'sk_test_example',
-            'payment_method_types' => ['card', 'gcash'],
+            'payment_method_types' => ['qrph'],
         ]);
 
         Http::fake([
@@ -52,6 +52,7 @@ class PayMongoServiceTest extends TestCase
         Http::assertSent(fn ($request) => $request->url() === 'https://api.paymongo.test/v2/checkout_sessions'
             && $request['data']['attributes']['line_items'][0]['amount'] === 35000
             && $request['data']['attributes']['line_items'][1]['amount'] === 14550
+            && $request['data']['attributes']['payment_method_types'] === ['qrph']
             && $request['data']['attributes']['reference_number'] === $order->order_ref
         );
     }
